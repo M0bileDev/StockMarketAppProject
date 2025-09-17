@@ -2,12 +2,17 @@ package com.example.stockmarketappproject.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.stockmarketappproject.framework.CompanyListing
 
 @Entity
 data class CompanyListingEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
-    val name: String,
-    val symbol: String,
-    val exchange: String,
+    override val name: String,
+    override val symbol: String,
+    override val exchange: String,
+) : CompanyListing(
+    name,
+    symbol,
+    exchange
 )

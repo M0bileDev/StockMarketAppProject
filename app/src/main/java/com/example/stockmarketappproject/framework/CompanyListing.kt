@@ -1,7 +1,7 @@
 package com.example.stockmarketappproject.framework
 
-data class CompanyListing(
-    val name: String,
-    val symbol: String,
-    val exchange: String,
+abstract class CompanyListing(
+    open val name: String,
+    open val symbol: String,
+    open val exchange: String,
 )

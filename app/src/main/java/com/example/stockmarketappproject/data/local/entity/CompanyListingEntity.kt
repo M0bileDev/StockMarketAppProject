@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.stockmarketappproject.framework.CompanyListing
 
-@Entity
+@Entity(tableName = "company_listing_entity")
 data class CompanyListingEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int,

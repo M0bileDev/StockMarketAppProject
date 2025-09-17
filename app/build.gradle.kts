@@ -24,6 +24,10 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    buildFeatures{
+        buildConfig = true
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -31,6 +35,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        debug{
+            buildConfigField("String", "BASE_URL", "\"https://alphavantage.co/\"")
+            buildConfigField("String", "API_KEY", "\"REPLACE_WITH_YOUR_API_KEY\"")
         }
     }
     compileOptions {

@@ -2,7 +2,7 @@ package com.example.stockmarketappproject.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.stockmarketappproject.framework.CompanyListing
+import com.example.stockmarketappproject.domain.model.CompanyListing
 
 @Entity(tableName = "company_listing_entity")
 data class CompanyListingEntity(

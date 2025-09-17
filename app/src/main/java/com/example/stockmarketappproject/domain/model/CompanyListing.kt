@@ -1,4 +1,4 @@
-package com.example.stockmarketappproject.framework
+package com.example.stockmarketappproject.domain.model
 
 abstract class CompanyListing(
     open val name: String,

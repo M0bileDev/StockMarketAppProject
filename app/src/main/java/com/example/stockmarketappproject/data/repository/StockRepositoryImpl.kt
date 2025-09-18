@@ -33,6 +33,7 @@ class StockRepositoryImpl @Inject constructor(
             }
         }
 
+    // TODO: probably return unit
     override suspend fun fetchCompanyListing(): Resource<List<CompanyListingDomain>> {
         return try {
             val response = stockApi.getListings()

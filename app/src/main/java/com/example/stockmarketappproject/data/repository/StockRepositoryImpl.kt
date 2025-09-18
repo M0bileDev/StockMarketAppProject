@@ -41,6 +41,8 @@ class StockRepositoryImpl @Inject constructor(
                 val result = with(stockMapper) {
                     data.map { companyListingData -> companyListingData.toCompanyListingEntity() }
                 }
+                // TODO: think about upsert
+                stockDao.clearCompanyListings()
                 stockDao.insertCompanyListing(result)
                 emit(Resource.Success(data))
             } catch (ioe: IOException) {

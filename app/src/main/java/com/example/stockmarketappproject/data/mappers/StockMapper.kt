@@ -6,4 +6,5 @@ import com.example.stockmarketappproject.data.model.CompanyListingData
 interface StockMapper {
 
     fun CompanyListingEntity.toCompanyListingData(): CompanyListingData
+    fun CompanyListingData.toCompanyListingEntity(): CompanyListingEntity
 }

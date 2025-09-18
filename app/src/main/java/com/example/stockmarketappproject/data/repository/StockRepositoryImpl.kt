@@ -2,6 +2,8 @@ package com.example.stockmarketappproject.data.repository
 
 import com.example.stockmarketappproject.data.local.dao.StockDao
 import com.example.stockmarketappproject.data.mappers.StockMapper
+import com.example.stockmarketappproject.data.model.CompanyListingData
+import com.example.stockmarketappproject.data.parser.CsvParser
 import com.example.stockmarketappproject.data.remote.api.StockApi
 import com.example.stockmarketappproject.domain.model.CompanyListingDomain
 import com.example.stockmarketappproject.domain.repository.StockRepository
@@ -15,7 +17,8 @@ import javax.inject.Inject
 class StockRepositoryImpl @Inject constructor(
     private val stockApi: StockApi,
     private val stockDao: StockDao,
-    private val stockMapper: StockMapper
+    private val stockMapper: StockMapper,
+    private val csvParser: CsvParser<CompanyListingData>
 ) : StockRepository {
 
 //    override suspend fun getCompanyListing(query: String): Flow<Resource<List<CompanyListingDomain>>> {
@@ -47,11 +50,11 @@ class StockRepositoryImpl @Inject constructor(
             }
         }
 
-    override suspend fun fetchCompanyListing(): Resource<CompanyListingDomain> {
+    override suspend fun fetchCompanyListing(): Resource<List<CompanyListingDomain>> {
         return try {
             val response = stockApi.getListings()
-            // TODO: create separate class for parsing
-            Resource.Success()
+            val data = csvParser.parse(response.byteStream())
+            Resource.Success(data)
         } catch (ioe: IOException) {
             Resource.Error(ioe.localizedMessage)
         } catch (httpe: HttpException) {

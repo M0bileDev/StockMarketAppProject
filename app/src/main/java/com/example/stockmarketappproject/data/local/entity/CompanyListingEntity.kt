@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "company_listing_entity")
 data class CompanyListingEntity(
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    val id: Int = 0,
     val name: String,
     val symbol: String,
     val exchange: String,

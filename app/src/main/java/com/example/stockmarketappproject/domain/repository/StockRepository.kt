@@ -4,11 +4,11 @@ import com.example.stockmarketappproject.domain.model.CompanyListingDomain
 import com.example.stockmarketappproject.utils.model.Resource
 import kotlinx.coroutines.flow.Flow
 
-interface StockRepository {
+interface StockRepository<T: CompanyListingDomain> {
 
     fun getCompanyListing(
         query: String
-    ): Flow<Resource<List<CompanyListingDomain>>>
+    ): Flow<Resource<List<T>>>
 
-    suspend fun fetchCompanyListing(): Resource<List<CompanyListingDomain>>
+    suspend fun fetchCompanyListing(): Flow<Resource<List<T>>>
 }

@@ -37,6 +37,7 @@ class StockRepositoryImpl @Inject constructor(
         return try {
             val response = stockApi.getListings()
             val data = csvParser.parse(response.byteStream())
+            // TODO: add logic to save data to db
             Resource.Success(data)
         } catch (ioe: IOException) {
             Resource.Error(ioe.localizedMessage)

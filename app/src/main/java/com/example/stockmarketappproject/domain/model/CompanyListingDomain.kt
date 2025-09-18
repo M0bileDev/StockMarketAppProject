@@ -1,6 +1,6 @@
 package com.example.stockmarketappproject.domain.model
 
-abstract class CompanyListing(
+abstract class CompanyListingDomain(
     open val name: String,
     open val symbol: String,
     open val exchange: String,

@@ -10,5 +10,5 @@ interface StockRepository {
         query: String
     ): Flow<Resource<List<CompanyListingDomain>>>
 
-    suspend fun fetchCompanyListing(): Resource<CompanyListingDomain>
+    suspend fun fetchCompanyListing(): Resource<List<CompanyListingDomain>>
 }

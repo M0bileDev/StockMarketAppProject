@@ -5,10 +5,10 @@ import com.example.stockmarketappproject.data.mappers.StockMapper
 import com.example.stockmarketappproject.data.model.CompanyListingData
 import com.example.stockmarketappproject.data.parser.CsvParser
 import com.example.stockmarketappproject.data.remote.api.StockApi
-import com.example.stockmarketappproject.domain.model.CompanyListingDomain
 import com.example.stockmarketappproject.domain.repository.StockRepository
 import com.example.stockmarketappproject.utils.model.Resource
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.transform
 import okio.IOException
 import retrofit2.HttpException
@@ -19,9 +19,9 @@ class StockRepositoryImpl @Inject constructor(
     private val stockDao: StockDao,
     private val stockMapper: StockMapper,
     private val csvParser: CsvParser<CompanyListingData>
-) : StockRepository {
+) : StockRepository<CompanyListingData> {
 
-    override fun getCompanyListing(query: String): Flow<Resource<List<CompanyListingDomain>>> =
+    override fun getCompanyListing(query: String): Flow<Resource<List<CompanyListingData>>> =
         stockDao.searchCompanyListing(query).transform { companyListingEntities ->
             try {
                 val result = with(stockMapper) {
@@ -33,17 +33,21 @@ class StockRepositoryImpl @Inject constructor(
             }
         }
 
-    // TODO: probably return unit
-    override suspend fun fetchCompanyListing(): Resource<List<CompanyListingDomain>> {
-        return try {
-            val response = stockApi.getListings()
-            val data = csvParser.parse(response.byteStream())
-            // TODO: add logic to save data to db
-            Resource.Success(data)
-        } catch (ioe: IOException) {
-            Resource.Error(ioe.localizedMessage)
-        } catch (httpe: HttpException) {
-            Resource.Error(httpe.localizedMessage)
+    override suspend fun fetchCompanyListing(): Flow<Resource<List<CompanyListingData>>> {
+        return flow {
+            try {
+                val response = stockApi.getListings()
+                val data = csvParser.parse(response.byteStream())
+                val result = with(stockMapper) {
+                    data.map { companyListingData -> companyListingData.toCompanyListingEntity() }
+                }
+                stockDao.insertCompanyListing(result)
+                emit(Resource.Success(data))
+            } catch (ioe: IOException) {
+                emit(Resource.Error(ioe.localizedMessage))
+            } catch (httpe: HttpException) {
+                emit(Resource.Error(httpe.localizedMessage))
+            }
         }
     }
 

@@ -21,23 +21,6 @@ class StockRepositoryImpl @Inject constructor(
     private val csvParser: CsvParser<CompanyListingData>
 ) : StockRepository {
 
-//    override suspend fun getCompanyListing(query: String): Flow<Resource<List<CompanyListingDomain>>> {
-//        return flow {
-//            try {
-//                val result = stockDao.searchCompanyListing(query)
-//                    .map { companyListingEntity ->
-//                        with(stockMapper) {
-//                            companyListingEntity.toCompanyListingData()
-//                        }
-//                    }
-//                emit(Resource.Success(result))
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//                emit(Resource.Error(message = e.localizedMessage))
-//            }
-//        }
-//    }
-
     override fun getCompanyListing(query: String): Flow<Resource<List<CompanyListingDomain>>> =
         stockDao.searchCompanyListing(query).transform { companyListingEntities ->
             try {

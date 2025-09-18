@@ -7,5 +7,9 @@ class StockMapperImpl : StockMapper {
     override fun CompanyListingEntity.toCompanyListingData(): CompanyListingData {
         return CompanyListingData(name, symbol, exchange)
     }
+
+    override fun CompanyListingData.toCompanyListingEntity(): CompanyListingEntity {
+        return CompanyListingEntity(name = name, symbol = symbol, exchange = exchange)
+    }
 }
 

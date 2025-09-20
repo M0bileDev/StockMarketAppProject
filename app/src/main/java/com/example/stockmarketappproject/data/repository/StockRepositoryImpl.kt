@@ -5,7 +5,6 @@ import com.example.stockmarketappproject.data.mappers.StockMapper
 import com.example.stockmarketappproject.data.model.CompanyListingData
 import com.example.stockmarketappproject.data.parser.CsvParser
 import com.example.stockmarketappproject.data.remote.api.StockApi
-import com.example.stockmarketappproject.domain.repository.StockRepository
 import com.example.stockmarketappproject.utils.model.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -19,7 +18,7 @@ class StockRepositoryImpl @Inject constructor(
     private val stockDao: StockDao,
     private val stockMapper: StockMapper,
     private val csvParser: CsvParser<CompanyListingData>
-) : StockRepository<CompanyListingData> {
+) : DefaultStockRepository {
 
     override fun getCompanyListing(query: String): Flow<Resource<List<CompanyListingData>>> =
         stockDao.searchCompanyListing(query).transform { companyListingEntities ->

@@ -37,26 +37,18 @@ class CompanyListingViewModel @Inject constructor(
     private val searchScope = CoroutineScope(Dispatchers.IO)
     private val fetchScope = CoroutineScope(Dispatchers.IO)
 
-    private var search by Delegates.observable("") { prop, old, new ->
-        with(searchScope) {
-            searchJob?.cancel()
-            searchJob = launch {
-                if (!isActive) return@launch
-                stockRepository.getCompanyListing(new).collectLatest { resource ->
-                    when (resource) {
-                        is Resource.Error -> TODO()
-                        is Resource.Success -> TODO()
-                    }
-                }
-            }
-        }
-    }
-
     private val _state = MutableStateFlow(CompanyListingState.createDefault())
     val state get() = _state.asStateFlow()
 
     private val _viewModelEvent = MutableSharedFlow<ViewModelEvents>()
     val event get() = _viewModelEvent.asSharedFlow()
+
+    fun onEvent(companyListingEvent: CompanyListingEvent) =
+        when (companyListingEvent) {
+            is CompanyListingEvent.OnNavigate -> TODO()
+            is CompanyListingEvent.OnSearchQueryChange -> ::searchCompany
+            is CompanyListingEvent.OnRefresh -> ::fetchCompanies
+        }
 
     private fun fetchCompanies() = with(fetchScope) {
         fetchJob?.cancel()
@@ -82,20 +74,25 @@ class CompanyListingViewModel @Inject constructor(
 
     }
 
-    fun onEvent(companyListingEvent: CompanyListingEvent) {
-        when (companyListingEvent) {
-            is CompanyListingEvent.OnNavigate -> TODO()
-            is CompanyListingEvent.OnSearchQueryChange -> {
-                search = companyListingEvent.query
-            }
+    fun searchCompany(query: String) = with(searchScope) {
+        searchJob?.cancel()
+        searchJob = launch {
+            if (!isActive) return@launch
 
-            is CompanyListingEvent.OnRefresh -> ::fetchCompanies
+            stockRepository.getCompanyListing(query).collectLatest { resource ->
+                when (resource) {
+                    is Resource.Error -> TODO()
+                    is Resource.Success -> TODO()
+                }
+            }
         }
     }
+
 
     override fun onCleared() {
         super.onCleared()
         searchJob?.cancel()
+        fetchJob?.cancel()
     }
 
 }

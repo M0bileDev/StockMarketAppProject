@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.properties.Delegates
 
 const val TAG = "CompanyListingViewModel"
 
@@ -75,6 +74,8 @@ class CompanyListingViewModel @Inject constructor(
     }
 
     fun searchCompany(query: String) = with(searchScope) {
+        _state.value = _state.value.copy(searchQuery = query)
+
         searchJob?.cancel()
         searchJob = launch {
             if (!isActive) return@launch

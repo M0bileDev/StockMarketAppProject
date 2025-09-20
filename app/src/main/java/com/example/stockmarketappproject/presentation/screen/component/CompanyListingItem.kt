@@ -50,7 +50,7 @@ fun CompanyListingItem(
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = stringResource(R.string.symbox_x, symbol),
+            text = stringResource(R.string.symbol_x, symbol),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             fontStyle = FontStyle.Italic,

@@ -29,10 +29,6 @@ class CompanyListingViewModel @Inject constructor(
     private val stockPresentationMapper: DefaultStockPresentationMapper
 ) : ViewModel() {
 
-    init {
-        fetchCompanies()
-    }
-
     private var searchJob: Job? = null
     private var fetchJob: Job? = null
     private val searchScope = CoroutineScope(Dispatchers.IO)
@@ -44,11 +40,20 @@ class CompanyListingViewModel @Inject constructor(
     private val _viewModelEvent = MutableSharedFlow<ViewModelEvents>()
     val event get() = _viewModelEvent.asSharedFlow()
 
+    init {
+        fetchCompanies()
+    }
+
     fun onEvent(companyListingEvent: CompanyListingEvent) =
         when (companyListingEvent) {
             is CompanyListingEvent.OnNavigate -> TODO()
-            is CompanyListingEvent.OnSearchQueryChange -> ::searchCompany
-            is CompanyListingEvent.OnRefresh -> ::fetchCompanies
+            is CompanyListingEvent.OnSearchQueryChange -> {
+                searchCompany(companyListingEvent.query)
+            }
+
+            is CompanyListingEvent.OnRefresh -> {
+                fetchCompanies()
+            }
         }
 
     private fun fetchCompanies() = with(fetchScope) {

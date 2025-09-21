@@ -1,0 +1,3 @@
+package com.example.stockmarketappproject.presentation.model
+
+interface PresentationModel

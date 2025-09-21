@@ -12,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 const val TAG = "CompanyListingViewModel"
 
@@ -40,7 +42,41 @@ class CompanyListingViewModel @Inject constructor(
     private val _viewModelEvent = MutableSharedFlow<ViewModelEvents>()
     val event get() = _viewModelEvent.asSharedFlow()
 
+    private var search by Delegates.observable(initialValue = "") { property, oldValue, newValue ->
+
+        with(searchScope) {
+            _state.value = _state.value.copy(searchQuery = newValue)
+
+            searchJob?.cancel()
+            searchJob = launch {
+                if (!isActive) return@launch
+
+                //provide simple debounce mechanism
+                delay(500)
+
+                stockRepository.getCompanyListing(newValue).collectLatest { resource ->
+                    when (resource) {
+                        is Resource.Error -> TODO()
+                        is Resource.Success -> {
+                            val data =
+                                resource.data ?: throw IllegalStateException("Data cannot be null")
+                            val presentation =
+                                data.map {
+                                    with(stockPresentationMapper) {
+                                        it.toPresentation()
+                                    }
+                                }
+                            _state.value = _state.value.copy(companies = presentation)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     init {
+        //init delegate
+        search = ""
         fetchCompanies()
     }
 
@@ -48,7 +84,7 @@ class CompanyListingViewModel @Inject constructor(
         when (companyListingEvent) {
             is CompanyListingEvent.OnNavigate -> TODO()
             is CompanyListingEvent.OnSearchQueryChange -> {
-                searchCompany(companyListingEvent.query)
+                search = companyListingEvent.query
             }
 
             is CompanyListingEvent.OnRefresh -> {
@@ -61,7 +97,7 @@ class CompanyListingViewModel @Inject constructor(
         fetchJob = launch {
             if (!isActive) return@launch
 
-            _state.value = _state.value.copy(isLoading = true)
+            _state.value = _state.value.copy(isRefreshing = true)
 
             stockRepository.fetchCompanyListing().collectLatest { resource ->
                 when (resource) {
@@ -75,38 +111,11 @@ class CompanyListingViewModel @Inject constructor(
                 }
 
                 // TODO: also with state update?
-                _state.value = _state.value.copy(isLoading = false)
+                _state.value = _state.value.copy(isRefreshing = false)
             }
         }
 
     }
-
-    fun searchCompany(query: String) = with(searchScope) {
-        _state.value = _state.value.copy(searchQuery = query)
-
-        searchJob?.cancel()
-        searchJob = launch {
-            if (!isActive) return@launch
-
-            stockRepository.getCompanyListing(query).collectLatest { resource ->
-                when (resource) {
-                    is Resource.Error -> TODO()
-                    is Resource.Success -> {
-                        val data =
-                            resource.data ?: throw IllegalStateException("Data cannot be null")
-                        val presentation =
-                            data.map {
-                                with(stockPresentationMapper) {
-                                    it.toPresentation()
-                                }
-                            }
-                        _state.value = _state.value.copy(companies = presentation)
-                    }
-                }
-            }
-        }
-    }
-
 
     override fun onCleared() {
         super.onCleared()

@@ -36,7 +36,7 @@ fun CompanyListingScreen(
     with(companyListingState) {
         Column(modifier = modifier.fillMaxSize()) {
             OutlinedTextField(
-                modifier = modifier.fillMaxWidth(),
+                modifier = modifier.fillMaxWidth().padding(16.dp),
                 value = searchQuery,
                 placeholder = {
                     Text(stringResource(R.string.type_company_name_or_symbol))

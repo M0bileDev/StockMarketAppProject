@@ -26,9 +26,9 @@ class StockRepositoryImpl @Inject constructor(
                 val result = with(stockDataMapper) {
                     companyListingEntities.map { entity -> entity.toCompanyListingData() }
                 }
-                Resource.Success(data = result)
+                emit(Resource.Success(data = result))
             } catch (e: Exception) {
-                Resource.Error(e.localizedMessage)
+                emit(Resource.Error(e.localizedMessage))
             }
         }
 
@@ -40,10 +40,13 @@ class StockRepositoryImpl @Inject constructor(
                 val result = with(stockDataMapper) {
                     data.map { companyListingData -> companyListingData.toCompanyListingEntity() }
                 }
+                if (result.isEmpty()) throw IllegalStateException("Data is empty")
                 // TODO: think about upsert
                 stockDao.clearCompanyListings()
                 stockDao.insertCompanyListing(result)
                 emit(Resource.Success(data))
+            } catch (ise: IllegalStateException) {
+                emit(Resource.Error(ise.localizedMessage))
             } catch (ioe: IOException) {
                 emit(Resource.Error(ioe.localizedMessage))
             } catch (httpe: HttpException) {

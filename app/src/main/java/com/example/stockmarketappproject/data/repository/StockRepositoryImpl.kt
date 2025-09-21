@@ -1,9 +1,9 @@
 package com.example.stockmarketappproject.data.repository
 
 import com.example.stockmarketappproject.data.local.dao.StockDao
-import com.example.stockmarketappproject.data.mappers.StockMapper
+import com.example.stockmarketappproject.data.mappers.DefaultStockDataMapper
 import com.example.stockmarketappproject.data.model.CompanyListingData
-import com.example.stockmarketappproject.data.parser.CsvParser
+import com.example.stockmarketappproject.data.parser.DefaultCsvParser
 import com.example.stockmarketappproject.data.remote.api.StockApi
 import com.example.stockmarketappproject.utils.model.Resource
 import kotlinx.coroutines.flow.Flow
@@ -16,14 +16,14 @@ import javax.inject.Inject
 class StockRepositoryImpl @Inject constructor(
     private val stockApi: StockApi,
     private val stockDao: StockDao,
-    private val stockMapper: StockMapper,
-    private val csvParser: CsvParser<CompanyListingData>
+    private val stockDataMapper: DefaultStockDataMapper,
+    private val csvParser: DefaultCsvParser
 ) : DefaultStockRepository {
 
     override fun getCompanyListing(query: String): Flow<Resource<List<CompanyListingData>>> =
         stockDao.searchCompanyListing(query).transform { companyListingEntities ->
             try {
-                val result = with(stockMapper) {
+                val result = with(stockDataMapper) {
                     companyListingEntities.map { entity -> entity.toCompanyListingData() }
                 }
                 Resource.Success(data = result)
@@ -37,7 +37,7 @@ class StockRepositoryImpl @Inject constructor(
             try {
                 val response = stockApi.getListings()
                 val data = csvParser.parse(response.byteStream())
-                val result = with(stockMapper) {
+                val result = with(stockDataMapper) {
                     data.map { companyListingData -> companyListingData.toCompanyListingEntity() }
                 }
                 // TODO: think about upsert

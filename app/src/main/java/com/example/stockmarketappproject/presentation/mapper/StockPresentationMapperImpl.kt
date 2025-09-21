@@ -2,8 +2,9 @@ package com.example.stockmarketappproject.presentation.mapper
 
 import com.example.stockmarketappproject.data.model.CompanyListingData
 import com.example.stockmarketappproject.presentation.model.CompanyListingPresentation
+import javax.inject.Inject
 
-class CompanyListingPresentationMapperImpl : CompanyListingPresentationMapper {
+class StockPresentationMapperImpl @Inject constructor(): DefaultStockPresentationMapper {
 
     override fun CompanyListingData.toPresentation(): CompanyListingPresentation {
         return CompanyListingPresentation(name, symbol, exchange)

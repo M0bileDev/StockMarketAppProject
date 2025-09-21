@@ -2,4 +2,5 @@
     <string name="app_name">StockMarketAppProject</string>
     <string name="symbol_x">(%1$s)</string>
     <string name="type_company_name_or_symbol">Type company name or symbol…</string>
+    <string name="search">Search</string>
 </resources>

@@ -4,4 +4,4 @@ data class CompanyListingPresentation(
     val name: String,
     val symbol: String,
     val exchange: String,
-)
+) : PresentationModel

@@ -4,4 +4,4 @@ abstract class CompanyListingDomain(
     open val name: String,
     open val symbol: String,
     open val exchange: String,
-)
+) : DomainModel

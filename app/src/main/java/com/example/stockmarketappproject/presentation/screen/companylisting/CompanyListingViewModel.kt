@@ -3,6 +3,7 @@ package com.example.stockmarketappproject.presentation.screen.companylisting
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.stockmarketappproject.data.repository.DefaultStockRepository
+import com.example.stockmarketappproject.presentation.mapper.DefaultStockPresentationMapper
 import com.example.stockmarketappproject.presentation.model.CompanyListingEvent
 import com.example.stockmarketappproject.presentation.model.CompanyListingState
 import com.example.stockmarketappproject.presentation.model.ViewModelEvents
@@ -24,7 +25,8 @@ const val TAG = "CompanyListingViewModel"
 
 @HiltViewModel
 class CompanyListingViewModel @Inject constructor(
-    private val stockRepository: DefaultStockRepository
+    private val stockRepository: DefaultStockRepository,
+    private val stockPresentationMapper: DefaultStockPresentationMapper
 ) : ViewModel() {
 
     init {
@@ -67,6 +69,7 @@ class CompanyListingViewModel @Inject constructor(
                     }
                 }
 
+                // TODO: also with state update?
                 _state.value = _state.value.copy(isLoading = false)
             }
         }
@@ -83,7 +86,17 @@ class CompanyListingViewModel @Inject constructor(
             stockRepository.getCompanyListing(query).collectLatest { resource ->
                 when (resource) {
                     is Resource.Error -> TODO()
-                    is Resource.Success -> TODO()
+                    is Resource.Success -> {
+                        val data =
+                            resource.data ?: throw IllegalStateException("Data cannot be null")
+                        val presentation =
+                            data.map {
+                                with(stockPresentationMapper) {
+                                    it.toPresentation()
+                                }
+                            }
+                        _state.value = _state.value.copy(companies = presentation)
+                    }
                 }
             }
         }

@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -36,8 +37,13 @@ fun CompanyListingScreen(
     with(companyListingState) {
         Column(modifier = modifier.fillMaxSize()) {
             OutlinedTextField(
-                modifier = modifier.fillMaxWidth().padding(16.dp),
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 value = searchQuery,
+                label = {
+                    Text(stringResource(R.string.search))
+                },
                 placeholder = {
                     Text(stringResource(R.string.type_company_name_or_symbol))
                 },
@@ -49,12 +55,13 @@ fun CompanyListingScreen(
             )
             PullToRefreshBox(
                 modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
                 isRefreshing = isRefreshing,
                 onRefresh = {
                     onEvent(CompanyListingEvent.OnRefresh)
                 }
             ) {
-                LazyColumn {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(companies) { company ->
                         CompanyListingItem(
                             modifier = Modifier

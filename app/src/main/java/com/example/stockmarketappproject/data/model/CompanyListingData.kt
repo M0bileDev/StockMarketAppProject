@@ -6,7 +6,7 @@ open class CompanyListingData(
     override val name: String,
     override val symbol: String,
     override val exchange: String,
-) : CompanyListingDomain(
+) : DataModel, CompanyListingDomain(
     name,
     symbol,
     exchange

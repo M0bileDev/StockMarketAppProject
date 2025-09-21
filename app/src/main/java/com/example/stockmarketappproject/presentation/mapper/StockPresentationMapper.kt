@@ -1,6 +1,9 @@
 package com.example.stockmarketappproject.presentation.mapper
 
-interface StockPresentationMapper<Data, Presentation> {
+import com.example.stockmarketappproject.data.model.DataModel
+import com.example.stockmarketappproject.presentation.model.PresentationModel
+
+interface StockPresentationMapper<Data : DataModel, Presentation : PresentationModel> {
 
     fun Data.toPresentation(): Presentation
 }

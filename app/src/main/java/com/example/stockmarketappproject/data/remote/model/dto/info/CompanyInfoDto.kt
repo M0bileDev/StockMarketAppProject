@@ -1,5 +1,6 @@
-package com.example.stockmarketappproject.data.remote.model.dto
+package com.example.stockmarketappproject.data.remote.model.dto.info
 
+import com.example.stockmarketappproject.data.remote.model.dto.DtoModel
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -15,4 +16,4 @@ data class CompanyInfoDto(
     val country: String,
     @param:Json(name = "Industry")
     val industry: String
-)
+): DtoModel

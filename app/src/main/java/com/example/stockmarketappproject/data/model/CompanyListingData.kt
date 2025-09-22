@@ -1,6 +1,6 @@
 package com.example.stockmarketappproject.data.model
 
-import com.example.stockmarketappproject.domain.model.CompanyListingDomain
+import com.example.stockmarketappproject.domain.model.listing.CompanyListingDomain
 
 open class CompanyListingData(
     override val name: String,

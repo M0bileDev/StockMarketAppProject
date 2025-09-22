@@ -99,10 +99,11 @@ class CompanyListingViewModel @Inject constructor(
 
             _state.value = _state.value.copy(isRefreshing = true)
 
-            stockRepository.fetchCompanyListing().collectLatest { resource ->
+            stockRepository.fetchCompanyListing().collect { resource ->
                 when (resource) {
                     is Resource.Error -> {
                         _viewModelEvent.emit(ViewModelEvents.NetworkError)
+                        Log.d(TAG, "handle error")
                     }
 
                     is Resource.Success -> {
@@ -111,10 +112,12 @@ class CompanyListingViewModel @Inject constructor(
                 }
 
                 // TODO: also with state update?
+                //odd situation when result might be so quick that ui thread dont have enough
+                // time to redraw, especially pull to refresh animation
+                delay(500)
                 _state.value = _state.value.copy(isRefreshing = false)
             }
         }
-
     }
 
     override fun onCleared() {

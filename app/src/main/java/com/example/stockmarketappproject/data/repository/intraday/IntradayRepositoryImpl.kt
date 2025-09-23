@@ -39,6 +39,7 @@ class IntradayRepositoryImpl @Inject constructor(
 
                 intradayDao.deleteCompanyIntradayInfo(name)
                 intradayDao.insertCompanyIntradayInfo(result)
+                emit(Resource.Success(data))
             } catch (ise: IllegalStateException) {
                 emit(Resource.Error(ise.localizedMessage))
             } catch (ioe: IOException) {

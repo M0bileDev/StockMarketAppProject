@@ -1,5 +1,6 @@
-package com.example.stockmarketappproject.data.model
+package com.example.stockmarketappproject.data.model.listing
 
+import com.example.stockmarketappproject.data.model.DataModel
 import com.example.stockmarketappproject.domain.model.listing.CompanyListingDomain
 
 open class CompanyListingData(

@@ -4,6 +4,6 @@ import com.example.stockmarketappproject.domain.model.DomainModel
 import java.time.LocalDateTime
 
 abstract class CompanyIntradayInfoDomain(
-    val timestamp: LocalDateTime,
-    val close: Double
-): DomainModel
+    open val timestamp: LocalDateTime,
+    open val close: Double
+) : DomainModel

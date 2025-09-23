@@ -1,6 +1,8 @@
 package com.example.stockmarketappproject.framework.di
 
 import com.example.stockmarketappproject.BuildConfig
+import com.example.stockmarketappproject.data.remote.api.InfoApi
+import com.example.stockmarketappproject.data.remote.api.IntradayApi
 import com.example.stockmarketappproject.data.remote.api.ListingApi
 import com.example.stockmarketappproject.data.remote.interceptor.ApiKeyInterceptor
 import com.squareup.moshi.Moshi
@@ -26,16 +28,36 @@ object NetworkModule {
 
     @[Provides Singleton]
     fun provideListingApi(
+        retrofit: Retrofit
+    ): ListingApi {
+        return retrofit.create()
+    }
+
+    @[Provides Singleton]
+    fun provideIntradayApi(
+        retrofit: Retrofit
+    ): IntradayApi {
+        return retrofit.create()
+    }
+
+    @[Provides Singleton]
+    fun provideInfoApi(
+        retrofit: Retrofit
+    ): InfoApi {
+        return retrofit.create()
+    }
+
+    @[Provides Singleton]
+    fun provideRetrofit(
         moshiConverterFactory: MoshiConverterFactory,
         httpClient: OkHttpClient
-    ): ListingApi {
+    ): Retrofit {
         return Retrofit
             .Builder()
             .baseUrl(BuildConfig.BASE_URL)
             .client(httpClient)
             .addConverterFactory(moshiConverterFactory)
             .build()
-            .create()
     }
 
     @[Provides Singleton]

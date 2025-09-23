@@ -41,6 +41,7 @@ class ListingRepositoryImpl @Inject constructor(
                     data.map { companyListingData -> companyListingData.toCompanyListingEntity() }
                 }
                 if (result.isEmpty()) throw IllegalStateException("Data is empty")
+
                 // TODO: think about upsert
                 listingDao.clearCompanyListings()
                 listingDao.insertCompanyListing(result)

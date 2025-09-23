@@ -3,7 +3,7 @@ package com.example.stockmarketappproject.data.repository.listing
 import com.example.stockmarketappproject.data.local.dao.ListingDao
 import com.example.stockmarketappproject.data.mappers.listing.DefaultListingDataMapper
 import com.example.stockmarketappproject.data.model.listing.CompanyListingData
-import com.example.stockmarketappproject.data.parser.DefaultCsvParser
+import com.example.stockmarketappproject.data.parser.listing.DefaultCsvListingParser
 import com.example.stockmarketappproject.data.remote.api.ListingApi
 import com.example.stockmarketappproject.utils.model.Resource
 import kotlinx.coroutines.flow.Flow
@@ -17,7 +17,7 @@ class ListingRepositoryImpl @Inject constructor(
     private val listingApi: ListingApi,
     private val listingDao: ListingDao,
     private val defaultListingDataMapper: DefaultListingDataMapper,
-    private val csvParser: DefaultCsvParser
+    private val defaultCsvListingParser: DefaultCsvListingParser
 ) : DefaultListingRepository {
 
     override fun getCompanyListing(query: String): Flow<Resource<List<CompanyListingData>>> =
@@ -36,7 +36,7 @@ class ListingRepositoryImpl @Inject constructor(
         return flow {
             try {
                 val response = listingApi.getListings()
-                val data = csvParser.parse(response.byteStream())
+                val data = defaultCsvListingParser.parse(response.byteStream())
                 val result = with(defaultListingDataMapper) {
                     data.map { companyListingData -> companyListingData.toCompanyListingEntity() }
                 }

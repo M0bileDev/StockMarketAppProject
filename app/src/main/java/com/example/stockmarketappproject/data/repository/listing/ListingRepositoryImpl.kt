@@ -1,10 +1,10 @@
-package com.example.stockmarketappproject.data.repository
+package com.example.stockmarketappproject.data.repository.listing
 
-import com.example.stockmarketappproject.data.local.dao.StockDao
+import com.example.stockmarketappproject.data.local.dao.ListingDao
 import com.example.stockmarketappproject.data.mappers.listing.DefaultListingDataMapper
 import com.example.stockmarketappproject.data.model.listing.CompanyListingData
 import com.example.stockmarketappproject.data.parser.DefaultCsvParser
-import com.example.stockmarketappproject.data.remote.api.StockApi
+import com.example.stockmarketappproject.data.remote.api.ListingApi
 import com.example.stockmarketappproject.utils.model.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -13,15 +13,15 @@ import okio.IOException
 import retrofit2.HttpException
 import javax.inject.Inject
 
-class StockRepositoryImpl @Inject constructor(
-    private val stockApi: StockApi,
-    private val stockDao: StockDao,
+class ListingRepositoryImpl @Inject constructor(
+    private val listingApi: ListingApi,
+    private val listingDao: ListingDao,
     private val defaultListingDataMapper: DefaultListingDataMapper,
     private val csvParser: DefaultCsvParser
-) : DefaultStockRepository {
+) : DefaultListingRepository {
 
     override fun getCompanyListing(query: String): Flow<Resource<List<CompanyListingData>>> =
-        stockDao.searchCompanyListing(query).transform { companyListingEntities ->
+        listingDao.searchCompanyListing(query).transform { companyListingEntities ->
             try {
                 val result = with(defaultListingDataMapper) {
                     companyListingEntities.map { entity -> entity.toCompanyListingData() }
@@ -35,15 +35,15 @@ class StockRepositoryImpl @Inject constructor(
     override suspend fun fetchCompanyListing(): Flow<Resource<List<CompanyListingData>>> {
         return flow {
             try {
-                val response = stockApi.getListings()
+                val response = listingApi.getListings()
                 val data = csvParser.parse(response.byteStream())
                 val result = with(defaultListingDataMapper) {
                     data.map { companyListingData -> companyListingData.toCompanyListingEntity() }
                 }
                 if (result.isEmpty()) throw IllegalStateException("Data is empty")
                 // TODO: think about upsert
-                stockDao.clearCompanyListings()
-                stockDao.insertCompanyListing(result)
+                listingDao.clearCompanyListings()
+                listingDao.insertCompanyListing(result)
                 emit(Resource.Success(data))
             } catch (ise: IllegalStateException) {
                 emit(Resource.Error(ise.localizedMessage))

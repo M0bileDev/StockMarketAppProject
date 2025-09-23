@@ -1,7 +1,7 @@
 package com.example.stockmarketappproject.data.repository
 
 import com.example.stockmarketappproject.data.local.dao.StockDao
-import com.example.stockmarketappproject.data.mappers.DefaultStockDataMapper
+import com.example.stockmarketappproject.data.mappers.listing.DefaultListingDataMapper
 import com.example.stockmarketappproject.data.model.CompanyListingData
 import com.example.stockmarketappproject.data.parser.DefaultCsvParser
 import com.example.stockmarketappproject.data.remote.api.StockApi
@@ -16,14 +16,14 @@ import javax.inject.Inject
 class StockRepositoryImpl @Inject constructor(
     private val stockApi: StockApi,
     private val stockDao: StockDao,
-    private val stockDataMapper: DefaultStockDataMapper,
+    private val defaultListingDataMapper: DefaultListingDataMapper,
     private val csvParser: DefaultCsvParser
 ) : DefaultStockRepository {
 
     override fun getCompanyListing(query: String): Flow<Resource<List<CompanyListingData>>> =
         stockDao.searchCompanyListing(query).transform { companyListingEntities ->
             try {
-                val result = with(stockDataMapper) {
+                val result = with(defaultListingDataMapper) {
                     companyListingEntities.map { entity -> entity.toCompanyListingData() }
                 }
                 emit(Resource.Success(data = result))
@@ -37,7 +37,7 @@ class StockRepositoryImpl @Inject constructor(
             try {
                 val response = stockApi.getListings()
                 val data = csvParser.parse(response.byteStream())
-                val result = with(stockDataMapper) {
+                val result = with(defaultListingDataMapper) {
                     data.map { companyListingData -> companyListingData.toCompanyListingEntity() }
                 }
                 if (result.isEmpty()) throw IllegalStateException("Data is empty")

@@ -1,7 +1,7 @@
 package com.example.stockmarketappproject.framework.di
 
-import com.example.stockmarketappproject.data.parser.CsvParserImpl
-import com.example.stockmarketappproject.data.parser.DefaultCsvParser
+import com.example.stockmarketappproject.data.parser.listing.CsvListingParserImpl
+import com.example.stockmarketappproject.data.parser.listing.DefaultCsvListingParser
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -12,5 +12,5 @@ import javax.inject.Singleton
 abstract class CsvParserModule {
 
     @[Binds Singleton]
-    abstract fun bindCsvParser(csvParserImpl: CsvParserImpl): DefaultCsvParser
+    abstract fun bindCsvListingParser(csvListingParser: CsvListingParserImpl): DefaultCsvListingParser
 }

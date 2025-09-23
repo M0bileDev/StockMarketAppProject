@@ -1,4 +1,4 @@
-package com.example.stockmarketappproject.data.parser
+package com.example.stockmarketappproject.data.parser.listing
 
 import com.example.stockmarketappproject.data.model.listing.CompanyListingData
 import com.opencsv.CSVReader
@@ -9,7 +9,7 @@ import java.io.InputStreamReader
 import javax.inject.Inject
 
 
-class CsvParserImpl @Inject constructor() : DefaultCsvParser {
+class CsvListingParserImpl @Inject constructor() : DefaultCsvListingParser {
 
     override suspend fun parse(stream: InputStream): List<CompanyListingData> {
         val reader = CSVReader(InputStreamReader(stream))

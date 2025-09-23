@@ -1,7 +1,7 @@
 package com.example.stockmarketappproject.framework.di
 
 import com.example.stockmarketappproject.BuildConfig
-import com.example.stockmarketappproject.data.remote.api.StockApi
+import com.example.stockmarketappproject.data.remote.api.ListingApi
 import com.example.stockmarketappproject.data.remote.interceptor.ApiKeyInterceptor
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -25,10 +25,10 @@ const val LOGGING_INTERCEPTOR = "LOGGING_INTERCEPTOR"
 object NetworkModule {
 
     @[Provides Singleton]
-    fun provideStockApi(
+    fun provideListingApi(
         moshiConverterFactory: MoshiConverterFactory,
         httpClient: OkHttpClient
-    ): StockApi {
+    ): ListingApi {
         return Retrofit
             .Builder()
             .baseUrl(BuildConfig.BASE_URL)

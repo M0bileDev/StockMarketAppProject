@@ -4,8 +4,9 @@ import com.example.stockmarketappproject.data.model.intraday.CompanyIntradayInfo
 import com.example.stockmarketappproject.data.remote.model.dto.intraday.CompanyIntradayInfoDto
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
-class IntradayDataMapperImpl : DefaultIntradayDataMapper {
+class IntradayDataMapperImpl @Inject constructor() : DefaultIntradayDataMapper {
     override fun CompanyIntradayInfoDto.toCompanyIntradayInfoData(): CompanyIntradayInfoData {
         val pattern = "yyyy-MM-dd HH:mm:ss"
         val formatter = DateTimeFormatter.ofPattern(pattern)

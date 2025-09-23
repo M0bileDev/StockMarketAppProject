@@ -7,7 +7,7 @@ import com.example.stockmarketappproject.data.local.entity.CompanyListingEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface StockDao {
+interface ListingDao {
 
     @Insert
     suspend fun insertCompanyListing(

@@ -2,7 +2,7 @@ package com.example.stockmarketappproject.presentation.screen.companylisting
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.example.stockmarketappproject.data.repository.DefaultStockRepository
+import com.example.stockmarketappproject.data.repository.listing.DefaultListingRepository
 import com.example.stockmarketappproject.presentation.mapper.DefaultStockPresentationMapper
 import com.example.stockmarketappproject.presentation.model.CompanyListingEvent
 import com.example.stockmarketappproject.presentation.model.CompanyListingState
@@ -27,7 +27,7 @@ const val TAG = "CompanyListingViewModel"
 
 @HiltViewModel
 class CompanyListingViewModel @Inject constructor(
-    private val stockRepository: DefaultStockRepository,
+    private val stockRepository: DefaultListingRepository,
     private val stockPresentationMapper: DefaultStockPresentationMapper
 ) : ViewModel() {
 

@@ -1,6 +1,6 @@
 package com.example.stockmarketappproject.data.parser
 
-import com.example.stockmarketappproject.data.model.CompanyListingData
+import com.example.stockmarketappproject.data.model.listing.CompanyListingData
 import com.opencsv.CSVReader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

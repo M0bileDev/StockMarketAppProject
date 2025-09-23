@@ -2,7 +2,7 @@ package com.example.stockmarketappproject.data.repository
 
 import com.example.stockmarketappproject.data.local.dao.StockDao
 import com.example.stockmarketappproject.data.mappers.listing.DefaultListingDataMapper
-import com.example.stockmarketappproject.data.model.CompanyListingData
+import com.example.stockmarketappproject.data.model.listing.CompanyListingData
 import com.example.stockmarketappproject.data.parser.DefaultCsvParser
 import com.example.stockmarketappproject.data.remote.api.StockApi
 import com.example.stockmarketappproject.utils.model.Resource

@@ -1,10 +1,10 @@
-package com.example.stockmarketappproject.data.mappers
+package com.example.stockmarketappproject.data.mappers.listing
 
 import com.example.stockmarketappproject.data.local.entity.CompanyListingEntity
 import com.example.stockmarketappproject.data.model.CompanyListingData
 import javax.inject.Inject
 
-class StockDataMapperImpl @Inject constructor() : DefaultStockDataMapper {
+class ListingDataMapperImpl @Inject constructor() : DefaultListingDataMapper {
     override fun CompanyListingEntity.toCompanyListingData(): CompanyListingData {
         return CompanyListingData(name, symbol, exchange)
     }

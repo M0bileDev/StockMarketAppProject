@@ -2,7 +2,9 @@ package com.example.stockmarketappproject.framework.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.stockmarketappproject.data.local.dao.StockDao
+import com.example.stockmarketappproject.data.local.dao.InfoDao
+import com.example.stockmarketappproject.data.local.dao.IntradayDao
+import com.example.stockmarketappproject.data.local.dao.ListingDao
 import com.example.stockmarketappproject.data.local.database.StockDatabase
 import dagger.Module
 import dagger.Provides
@@ -26,9 +28,23 @@ object LocalModule {
     }
 
     @[Provides Singleton]
-    fun provideStockDao(
+    fun provideListingDao(
         stockDatabase: StockDatabase
-    ): StockDao {
-        return stockDatabase.stockDao
+    ): ListingDao {
+        return stockDatabase.listingDao
+    }
+
+    @[Provides Singleton]
+    fun provideIntradayDao(
+        stockDatabase: StockDatabase
+    ): IntradayDao {
+        return stockDatabase.intradayDao
+    }
+
+    @[Provides Singleton]
+    fun provideInfoDao(
+        stockDatabase: StockDatabase
+    ): InfoDao {
+        return stockDatabase.infoDao
     }
 }

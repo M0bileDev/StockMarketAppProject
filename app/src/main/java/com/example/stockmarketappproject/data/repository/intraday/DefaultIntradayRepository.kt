@@ -1,0 +1,6 @@
+package com.example.stockmarketappproject.data.repository.intraday
+
+import com.example.stockmarketappproject.data.model.intraday.CompanyIntradayInfoData
+import com.example.stockmarketappproject.domain.repository.IntradayRepository
+
+interface DefaultIntradayRepository : IntradayRepository<CompanyIntradayInfoData>

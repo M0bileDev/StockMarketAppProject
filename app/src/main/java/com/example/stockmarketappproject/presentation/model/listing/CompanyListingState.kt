@@ -1,4 +1,4 @@
-package com.example.stockmarketappproject.presentation.model
+package com.example.stockmarketappproject.presentation.model.listing
 
 data class CompanyListingState(
     val companies: List<CompanyListingPresentation> = emptyList(),

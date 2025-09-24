@@ -4,8 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.stockmarketappproject.data.repository.listing.DefaultListingRepository
 import com.example.stockmarketappproject.presentation.mapper.DefaultStockPresentationMapper
-import com.example.stockmarketappproject.presentation.model.CompanyListingEvent
-import com.example.stockmarketappproject.presentation.model.CompanyListingState
+import com.example.stockmarketappproject.presentation.model.listing.CompanyListingEvent
+import com.example.stockmarketappproject.presentation.model.listing.CompanyListingState
 import com.example.stockmarketappproject.presentation.model.ViewModelEvents
 import com.example.stockmarketappproject.utils.model.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel

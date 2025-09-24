@@ -18,7 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.stockmarketappproject.R
-import com.example.stockmarketappproject.presentation.model.CompanyListingPresentation
+import com.example.stockmarketappproject.presentation.model.listing.CompanyListingPresentation
 import com.example.stockmarketappproject.presentation.ui.theme.StockMarketAppProjectTheme
 
 @Composable

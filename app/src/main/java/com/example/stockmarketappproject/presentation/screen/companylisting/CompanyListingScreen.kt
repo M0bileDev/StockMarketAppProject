@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.stockmarketappproject.R
-import com.example.stockmarketappproject.presentation.model.CompanyListingEvent
+import com.example.stockmarketappproject.presentation.model.listing.CompanyListingEvent
 import com.example.stockmarketappproject.presentation.screen.component.CompanyListingItem
 
 @Composable

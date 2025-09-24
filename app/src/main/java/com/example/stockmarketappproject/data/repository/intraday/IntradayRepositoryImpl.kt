@@ -8,6 +8,7 @@ import com.example.stockmarketappproject.data.remote.api.IntradayApi
 import com.example.stockmarketappproject.utils.model.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.transform
 import okio.IOException
 import retrofit2.HttpException
 import javax.inject.Inject
@@ -19,9 +20,17 @@ class IntradayRepositoryImpl @Inject constructor(
     private val defaultCsvIntradayParser: DefaultCsvIntradayParser
 ) : DefaultIntradayRepository {
 
-    override fun getIntradayInfo(name: String): Flow<Resource<List<CompanyIntradayInfoData>>> {
-        TODO("Not yet implemented")
-    }
+    override fun getIntradayInfo(name: String): Flow<Resource<List<CompanyIntradayInfoData>>> =
+        intradayDao.getCompanyIntradayInfoEntities(name).transform { companyIntradayInfoEntities ->
+            try {
+                val result = with(defaultIntradayDataMapper) {
+                    companyIntradayInfoEntities.map { entity -> entity.toCompanyIntradayInfoData() }
+                }
+                emit(Resource.Success(data = result))
+            } catch (e: Exception) {
+                emit(Resource.Error(e.localizedMessage))
+            }
+        }
 
     override fun fetchIntradayInfo(name: String): Flow<Resource<List<CompanyIntradayInfoData>>> {
         return flow {
@@ -37,6 +46,7 @@ class IntradayRepositoryImpl @Inject constructor(
                 }
                 if (result.isEmpty()) throw IllegalStateException("Data is empty")
 
+                //todo logically when company listing was deleted, intraday info also has to be deleted (all info)
                 intradayDao.deleteCompanyIntradayInfo(name)
                 intradayDao.insertCompanyIntradayInfo(result)
                 emit(Resource.Success(data))

@@ -125,9 +125,9 @@ class CompanyInfoViewModel @Inject constructor(
     )
 
 
-    private fun <T> fetchOnNavigationArgumentOrError(
-        navArg: T?,
-        onFetch: (T) -> Unit,
+    private fun <NavArg> fetchOnNavigationArgumentOrError(
+        navArg: NavArg?,
+        onFetch: (NavArg) -> Unit,
         onError: () -> Unit
     ) {
         navArg?.let { arg ->

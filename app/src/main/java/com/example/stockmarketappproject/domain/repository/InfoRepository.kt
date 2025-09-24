@@ -7,10 +7,10 @@ import kotlinx.coroutines.flow.Flow
 interface InfoRepository<Domain : DomainModel> {
 
     fun getCompanyInfo(
-        symbol: String
+        name: String
     ): Flow<Resource<Domain>>
 
     suspend fun fetchCompanyInfo(
-        symbol: String
+        name: String
     ): Flow<Resource<Domain>>
 }

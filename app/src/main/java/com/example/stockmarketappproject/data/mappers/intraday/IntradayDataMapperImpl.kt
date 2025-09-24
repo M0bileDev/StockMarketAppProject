@@ -32,4 +32,14 @@ class IntradayDataMapperImpl @Inject constructor(
         )
     }
 
+    override fun CompanyIntradayInfoEntity.toCompanyIntradayInfoData(): CompanyIntradayInfoData {
+        val localDateTime = with(localDateTimeFormatter) {
+            timestamp.toLocalDateTime()
+        }
+        return CompanyIntradayInfoData(
+            timestamp = localDateTime,
+            close = close
+        )
+    }
+
 }

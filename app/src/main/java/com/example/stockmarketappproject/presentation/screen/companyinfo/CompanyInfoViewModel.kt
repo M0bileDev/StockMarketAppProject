@@ -8,6 +8,7 @@ import com.example.stockmarketappproject.data.repository.info.DefaultInfoReposit
 import com.example.stockmarketappproject.data.repository.intraday.DefaultIntradayRepository
 import com.example.stockmarketappproject.presentation.model.ViewModelEvents
 import com.example.stockmarketappproject.presentation.model.info.CompanyInfoState
+import com.example.stockmarketappproject.presentation.model.info.ViewModelInfoEvents
 import com.example.stockmarketappproject.presentation.screen.companylisting.TAG
 import com.example.stockmarketappproject.utils.model.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -83,7 +84,7 @@ class CompanyInfoViewModel @Inject constructor(
         },
         onError = {
             viewModelScope.launch {
-                _viewModelEvent.emit(ViewModelEvents.NavigationArgumentError)
+                _viewModelEvent.emit(ViewModelInfoEvents.NavigationArgumentError)
             }
         }
     )
@@ -121,7 +122,7 @@ class CompanyInfoViewModel @Inject constructor(
         },
         onError = {
             viewModelScope.launch {
-                _viewModelEvent.emit(ViewModelEvents.NavigationArgumentError)
+                _viewModelEvent.emit(ViewModelInfoEvents.NavigationArgumentError)
             }
         }
     )

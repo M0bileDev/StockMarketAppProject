@@ -111,28 +111,36 @@ fun StockChart(
             // 1100 -> 21-40%
             // 1000 -> 0-20%
             stockInfoList.forEachIndexed { index, currentIntradayInfo ->
-                val nextIntradayInfo = stockInfoList.getOrNull(index + 1) ?: stockInfoList.last()
+
+                val nextIndex = index + 1
+                val nextIntradayInfo = stockInfoList.getOrNull(nextIndex) ?: stockInfoList.last()
 
                 val ratioDenominator = upperValue - lowerValue
                 val startRatio =
                     (currentIntradayInfo.close - lowerValue) / ratioDenominator
                 val endRatio = (nextIntradayInfo.close - lowerValue) / ratioDenominator
 
+                val x1 = spacing + index * spacePerHour
+                // y1 explanation (each 'y' in any case)
+                //
+                // - remember we start from point (0,0)
+                //
+                //  ^ - height
+                //  |
+                //  |
+                //  |                                               ^ - height - spacing - (startRatio * height)
+                //  |                                               |
+                //  |   ^ - spacing                                 |
+                //  |   |               ^ - startRatio * height     |
+                //  |   |               |                           |
+                //  v   v               v                           v
+                val y1 = height - spacing - (startRatio * height).toFloat()
+
+                val x2 = spacing + nextIndex * spacePerHour
+                val y2 = height - spacing - (endRatio * height).toFloat()
+
                 if (index == 0) {
-                    moveTo(
-                        spacing,
-                        // - remember we start from point (0,0)
-                        //
-                        //  ^ - height
-                        //  |
-                        //  |
-                        //  |                                               ^ - height - spacing - (startRatio * height)
-                        //  |                                               |
-                        //  |   ^ - spacing                                 |
-                        //  |   |               ^ - startRatio * height     |
-                        //  |   |               |                           |
-                        //  v   v               v                           v
-                        height - spacing - (startRatio * height).toFloat()
+                    moveTo(x1, y1
                     )
                 }
             }

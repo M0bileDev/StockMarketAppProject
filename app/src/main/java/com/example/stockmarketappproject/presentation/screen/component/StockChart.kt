@@ -30,7 +30,7 @@ fun StockChart(
     val transparentGraphColor = remember(Unit) { Color.Green.copy(alpha = 0.5f) }
 
 
-    // TODO: these calculation should be move a=out of the composition to reduce calculation cost
+    // TODO: these calculation should be move out of the composition to reduce calculation cost
 
     // roundToInt round to lower number, that's why plus(1) was called
     val upperValue = remember(stockInfoList) {

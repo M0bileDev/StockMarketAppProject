@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -28,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.stockmarketappproject.R
+import com.example.stockmarketappproject.presentation.screen.component.StockChart
 
 @Composable
 fun CompanyInfoScreen(
@@ -72,6 +75,49 @@ fun CompanyInfoScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     HorizontalDivider()
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.industry_x, presentation.industry),
+                        fontStyle = FontStyle.Italic,
+                        fontSize = 14.sp,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                    )
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.country_x, presentation.country),
+                        fontStyle = FontStyle.Italic,
+                        fontSize = 14.sp,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HorizontalDivider()
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = presentation.description,
+                        fontStyle = FontStyle.Italic,
+                        fontSize = 12.sp,
+                    )
+                }
+                if (stockInfoList.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.market_summary),
+                        fontSize = 14.sp,
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    StockChart(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(250.dp)
+                            .align(Alignment.CenterHorizontally), stockInfoList = stockInfoList
+                    )
+                } else {
+                    Unit
                 }
             }
         }

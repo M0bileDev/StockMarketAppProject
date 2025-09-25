@@ -2,11 +2,13 @@ package com.example.stockmarketappproject.presentation.screen.companylisting
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.stockmarketappproject.data.repository.listing.DefaultListingRepository
 import com.example.stockmarketappproject.presentation.mapper.DefaultStockPresentationMapper
+import com.example.stockmarketappproject.presentation.model.ViewModelEvents
 import com.example.stockmarketappproject.presentation.model.listing.CompanyListingEvent
 import com.example.stockmarketappproject.presentation.model.listing.CompanyListingState
-import com.example.stockmarketappproject.presentation.model.ViewModelEvents
+import com.example.stockmarketappproject.presentation.model.listing.ViewModelListingEvents
 import com.example.stockmarketappproject.utils.model.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -56,17 +58,27 @@ class CompanyListingViewModel @Inject constructor(
 
                 stockRepository.getCompanyListing(newValue).collectLatest { resource ->
                     when (resource) {
-                        is Resource.Error -> TODO()
+                        is Resource.Error -> {
+                            _viewModelEvent.emit(ViewModelEvents.DatabaseError)
+                        }
+
                         is Resource.Success -> {
-                            val data =
-                                resource.data ?: throw IllegalStateException("Data cannot be null")
-                            val presentation =
-                                data.map {
-                                    with(stockPresentationMapper) {
-                                        it.toPresentation()
+                            try {
+                                val data =
+                                    resource.data
+                                        ?: throw IllegalStateException("Data cannot be null")
+
+                                val presentation =
+                                    data.map {
+                                        with(stockPresentationMapper) {
+                                            it.toPresentation()
+                                        }
                                     }
-                                }
-                            _state.value = _state.value.copy(companies = presentation)
+                                _state.value = _state.value.copy(companies = presentation)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                _viewModelEvent.emit(ViewModelEvents.DatabaseError)
+                            }
                         }
                     }
                 }
@@ -82,15 +94,25 @@ class CompanyListingViewModel @Inject constructor(
 
     fun onEvent(companyListingEvent: CompanyListingEvent) =
         when (companyListingEvent) {
-            is CompanyListingEvent.OnNavigate -> TODO()
+            is CompanyListingEvent.OnNavigate -> ::navigateToCompanyInfo
+
             is CompanyListingEvent.OnSearchQueryChange -> {
                 search = companyListingEvent.query
             }
 
-            is CompanyListingEvent.OnRefresh -> {
-                fetchCompanies()
-            }
+            is CompanyListingEvent.OnRefresh -> ::fetchCompanies
         }
+
+    private fun navigateToCompanyInfo(name: String) =
+        viewModelScope.launch {
+            if (!isActive) return@launch
+            _viewModelEvent.emit(
+                ViewModelListingEvents.NavigateToCompanyInfo(
+                    name
+                )
+            )
+        }
+
 
     private fun fetchCompanies() = with(fetchScope) {
         fetchJob?.cancel()

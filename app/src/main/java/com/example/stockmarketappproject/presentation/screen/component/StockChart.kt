@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.copy
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -100,7 +101,8 @@ fun StockChart(
             )
         }
 
-        val stokePath = Path().apply {
+        var lastXControlPoint = 0f
+        val strokePath = Path().apply {
             val height = size.height
 
             // logic will be to transform info (value below) to canvas coordinate system based on percentage of stock value
@@ -140,10 +142,29 @@ fun StockChart(
                 val y2 = height - spacing - (endRatio * height).toFloat()
 
                 if (index == 0) {
-                    moveTo(x1, y1
+                    moveTo(
+                        x1, y1
                     )
                 }
+
+
+                // control point which decides in which direction the curve will go to
+                // (smooth curve between two coordinates)
+                val xControlPoint = (x1 + x2) / 2f
+
+                // TODO: think how can make it better
+                lastXControlPoint = xControlPoint
+                val yControlPoint = (y1 + y2) / 2f
+                // draw smooth lines
+                quadraticTo(x1, y1, xControlPoint, yControlPoint)
             }
+        }
+
+        // background under the stock line (will be filled with gradient)
+        val fillPath = strokePath.copy().apply {
+            lineTo(lastXControlPoint, size.height - spacing)
+            lineTo(spacing, size.height - spacing)
+            close()
         }
     }
 

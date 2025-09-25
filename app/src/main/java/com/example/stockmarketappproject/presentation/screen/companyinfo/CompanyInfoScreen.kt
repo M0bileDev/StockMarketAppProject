@@ -15,6 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -42,86 +43,88 @@ fun CompanyInfoScreen(
     val scrollable = rememberScrollState()
 
     with(companyInfoState) {
-        PullToRefreshBox(
-            modifier = modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
-            isRefreshing = isRefreshing,
-            onRefresh = {
-                // TODO: support screen events
-            }
-        ) {
-            Column(
-                modifier = Modifier
+        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+            PullToRefreshBox(
+                modifier = modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(16.dp)
-                    .scrollable(scrollable, orientation = Orientation.Vertical)
-            ) {
-                company?.let { presentation ->
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = presentation.name,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = presentation.symbol,
-                        fontStyle = FontStyle.Italic,
-                        fontSize = 14.sp,
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    HorizontalDivider()
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.industry_x, presentation.industry),
-                        fontStyle = FontStyle.Italic,
-                        fontSize = 14.sp,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
-                    )
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.country_x, presentation.country),
-                        fontStyle = FontStyle.Italic,
-                        fontSize = 14.sp,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    HorizontalDivider()
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = presentation.description,
-                        fontStyle = FontStyle.Italic,
-                        fontSize = 12.sp,
-                    )
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center,
+                isRefreshing = isRefreshing,
+                onRefresh = {
+                    // TODO: support screen events
                 }
-                if (stockInfoList.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.market_summary),
-                        fontSize = 14.sp,
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    StockChart(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(250.dp)
-                            .align(Alignment.CenterHorizontally), stockInfoList = stockInfoList
-                    )
-                } else {
-                    Unit
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                        .padding(16.dp)
+                        .scrollable(scrollable, orientation = Orientation.Vertical)
+                ) {
+                    company?.let { presentation ->
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = presentation.name,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = presentation.symbol,
+                            fontStyle = FontStyle.Italic,
+                            fontSize = 14.sp,
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        HorizontalDivider()
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = stringResource(R.string.industry_x, presentation.industry),
+                            fontStyle = FontStyle.Italic,
+                            fontSize = 14.sp,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                        )
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = stringResource(R.string.country_x, presentation.country),
+                            fontStyle = FontStyle.Italic,
+                            fontSize = 14.sp,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        HorizontalDivider()
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = presentation.description,
+                            fontStyle = FontStyle.Italic,
+                            fontSize = 12.sp,
+                        )
+                    }
+                    if (stockInfoList.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = stringResource(R.string.market_summary),
+                            fontSize = 14.sp,
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        StockChart(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(250.dp)
+                                .align(Alignment.CenterHorizontally), stockInfoList = stockInfoList
+                        )
+                    } else {
+                        Unit
+                    }
                 }
             }
         }
     }
-
-
 }

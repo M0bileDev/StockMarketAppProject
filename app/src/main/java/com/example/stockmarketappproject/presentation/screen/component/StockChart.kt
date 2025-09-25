@@ -5,13 +5,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.copy
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.stockmarketappproject.presentation.model.intraday.CompanyIntradayInfoPresentation
 import kotlin.math.roundToInt
@@ -28,9 +32,10 @@ fun StockChart(
     // values from the left (x axis) and hours from the bottom (y axis)
     val spacing = remember(Unit) { 100f }
 
-    // background color below the chart line
-    val transparentGraphColor = remember(Unit) { Color.Green.copy(alpha = 0.5f) }
+    val graphColor = remember(Unit) { Color.Green }
 
+    // background color below the chart line
+    val transparentGraphColor = remember(Unit) { graphColor.copy(alpha = 0.5f) }
 
     // TODO: these calculation should be move out of the composition to reduce calculation cost
 
@@ -160,12 +165,32 @@ fun StockChart(
             }
         }
 
+        // draw stock lines
+        drawPath(
+            strokePath,
+            color = graphColor,
+            style = Stroke(
+                width = 3.dp.toPx(),
+                cap = StrokeCap.Round
+            )
+        )
+
         // background under the stock line (will be filled with gradient)
         val fillPath = strokePath.copy().apply {
             lineTo(lastXControlPoint, size.height - spacing)
             lineTo(spacing, size.height - spacing)
             close()
         }
+        drawPath(
+            fillPath,
+            brush = Brush.verticalGradient(
+                listOf(
+                    transparentGraphColor,
+                    Color.Transparent
+                ),
+                endY = size.height - spacing
+            )
+        )
     }
 
 

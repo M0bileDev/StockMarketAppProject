@@ -25,7 +25,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CompanyInfoViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val companyInfoRepository: DefaultInfoRepository,
     private val intradayRepository: DefaultIntradayRepository
 ) : ViewModel() {
@@ -42,6 +42,8 @@ class CompanyInfoViewModel @Inject constructor(
 
     private var fetchIntradayJob: Job? = null
     private val fetchIntradayScope = CoroutineScope(Dispatchers.IO)
+
+    // TODO: resolve problem with refreshing, since both calls are executed separately
 
     init {
         fetchCompanyInfo()

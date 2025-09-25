@@ -83,7 +83,7 @@ fun StockChart(
         (0..priceStep).forEach { i ->
             val price = lowerValue + (priceInterpolation * i)
 
-            // similar as above, space will grow in linear manner
+            // similar as above, space will shrink in linear manner
             val yOffset = size.height - spacing - i * size.height / 5
             val xOffset = 32f
 

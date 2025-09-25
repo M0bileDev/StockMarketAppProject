@@ -49,7 +49,8 @@ fun StockChart(
         val spacePerHour = (size.width - spacing) / stockInfoList.size
 
         //every two hour
-        (0 until stockInfoList.size - 1 step 2).forEach { i ->
+        val hourStep = 2
+        (0 until stockInfoList.size - 1 step hourStep).forEach { i ->
             val intradayInfo = stockInfoList[i]
             val hour = intradayInfo.timestamp.hour
 
@@ -69,6 +70,27 @@ fun StockChart(
                 topLeft = Offset(xOffset, yOffset),
                 textLayoutResult = textMeasurer.measure(
                     text = hour.toString(), style = TextStyle.Default.copy(
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        fontSize = 12.sp
+                    )
+                )
+            )
+        }
+
+        val priceStep = 5
+        val priceInterpolation = (upperValue - lowerValue) / priceStep
+        (0..priceStep).forEach { i ->
+            val price = lowerValue + (priceInterpolation * i)
+
+            // similar as above, space will grow in linear manner
+            val yOffset = size.height - spacing - i * size.height / 5
+            val xOffset = 32f
+
+            drawText(
+                topLeft = Offset(xOffset, yOffset),
+                textLayoutResult = textMeasurer.measure(
+                    text = price.toString(), style = TextStyle.Default.copy(
                         color = Color.White,
                         textAlign = TextAlign.Center,
                         fontSize = 12.sp

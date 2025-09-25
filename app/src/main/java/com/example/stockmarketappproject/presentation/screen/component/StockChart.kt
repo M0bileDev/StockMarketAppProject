@@ -1,11 +1,15 @@
 package com.example.stockmarketappproject.presentation.screen.component
 
-import android.graphics.Paint
+import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.example.stockmarketappproject.presentation.model.intraday.CompanyIntradayInfoPresentation
 import kotlin.math.roundToInt
@@ -15,6 +19,9 @@ fun StockChart(
     modifier: Modifier = Modifier,
     stockInfoList: List<CompanyIntradayInfoPresentation>
 ) {
+
+    val textMeasurer = rememberTextMeasurer()
+
     // spacing between chart in x,y axis -> x = (0,100), y = (max, max-100)
     // values from the left (x axis) and hours from the bottom (y axis)
     val spacing = remember(Unit) { 100f }
@@ -35,14 +42,39 @@ fun StockChart(
         stockInfoList.minOfOrNull { it.close }?.roundToInt() ?: 0
     }
 
-    val density = LocalDensity.current
-    // draw text on canvas
-    val textPainter = remember(density) {
-        Paint().apply {
-            color = android.graphics.Color.WHITE
-            //coordinate of the text is center not top-left corner
-            textAlign = Paint.Align.CENTER
-            textSize = with(density) { 12.sp.toPx() }
+    Canvas(
+        modifier = modifier
+    ) {
+        // space value in pixels about space between each hour's text
+        val spacePerHour = (size.width - spacing) / stockInfoList.size
+
+        //every two hour
+        (0 until stockInfoList.size - 1 step 2).forEach { i ->
+            val intradayInfo = stockInfoList[i]
+            val hour = intradayInfo.timestamp.hour
+
+            // for every hour, space from left will grow like
+            // spacing + (i * spacePerHour)
+            // spacing = 100, spacePerHour = 100
+            // <-100 + (0 * 100) = 100   -> 5 (first hour)
+            // <-100 + (1 * 100) = 200         -> 7 (second hour)
+            // <-100 + (2 * 100) = 300                 -> 9 (third hour) etc.
+            // space will grow in linear manner
+            val xOffset = spacing + (i * spacePerHour)
+
+            // static value
+            val yOffset = size.height - 8
+
+            drawText(
+                topLeft = Offset(xOffset, yOffset),
+                textLayoutResult = textMeasurer.measure(
+                    text = hour.toString(), style = TextStyle.Default.copy(
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        fontSize = 12.sp
+                    )
+                )
+            )
         }
     }
 

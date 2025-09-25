@@ -5,13 +5,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.remember
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.createGraph
+import com.example.stockmarketappproject.framework.directions.CompanyInfo
+import com.example.stockmarketappproject.framework.directions.CompanyListing
+import com.example.stockmarketappproject.presentation.screen.companyinfo.CompanyInfoScreen
 import com.example.stockmarketappproject.presentation.screen.companylisting.CompanyListingScreen
 import com.example.stockmarketappproject.presentation.ui.theme.StockMarketAppProjectTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,12 +27,29 @@ class MainActivity : ComponentActivity() {
         )
         setContent {
             StockMarketAppProjectTheme {
-
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-
-                    CompanyListingScreen(modifier = Modifier.padding(innerPadding))
-                }
+                StockMarketApp()
             }
         }
     }
+}
+
+@Composable
+private fun StockMarketApp() {
+    val navController = rememberNavController()
+    val navGraph = remember(navController) {
+        navController.createGraph(CompanyListing) {
+            composable<CompanyListing> {
+                CompanyListingScreen()
+            }
+            composable<CompanyInfo> {
+                CompanyInfoScreen()
+            }
+        }
+    }
+
+    NavHost(
+        navController = navController,
+        graph = navGraph
+    )
+
 }

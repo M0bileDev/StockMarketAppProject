@@ -3,4 +3,7 @@
     <string name="symbol_x">(%1$s)</string>
     <string name="type_company_name_or_symbol">Type company name or symbol…</string>
     <string name="search">Search</string>
+    <string name="industry_x">Industry: %1$s</string>
+    <string name="country_x">Country: %1$s</string>
+    <string name="market_summary">Market summary</string>
 </resources>

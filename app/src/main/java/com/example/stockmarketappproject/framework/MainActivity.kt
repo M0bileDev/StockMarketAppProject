@@ -39,7 +39,9 @@ private fun StockMarketApp() {
     val navGraph = remember(navController) {
         navController.createGraph(CompanyListing) {
             composable<CompanyListing> {
-                CompanyListingScreen(onNavigateToCompanyInfo = {})
+                CompanyListingScreen(onNavigateToCompanyInfo = { name ->
+                    navController.navigate(CompanyInfo(name))
+                })
             }
             composable<CompanyInfo> {
                 CompanyInfoScreen()

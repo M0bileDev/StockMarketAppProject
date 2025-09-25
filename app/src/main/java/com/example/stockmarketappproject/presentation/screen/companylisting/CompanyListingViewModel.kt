@@ -94,13 +94,17 @@ class CompanyListingViewModel @Inject constructor(
 
     fun onEvent(companyListingEvent: CompanyListingEvent) =
         when (companyListingEvent) {
-            is CompanyListingEvent.OnNavigate -> ::navigateToCompanyInfo
+            is CompanyListingEvent.OnNavigate -> {
+                navigateToCompanyInfo(companyListingEvent.name)
+            }
 
             is CompanyListingEvent.OnSearchQueryChange -> {
                 search = companyListingEvent.query
             }
 
-            is CompanyListingEvent.OnRefresh -> ::fetchCompanies
+            is CompanyListingEvent.OnRefresh -> {
+                fetchCompanies()
+            }
         }
 
     private fun navigateToCompanyInfo(name: String) =

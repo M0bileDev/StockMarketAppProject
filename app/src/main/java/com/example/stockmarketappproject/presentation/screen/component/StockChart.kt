@@ -6,6 +6,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -97,6 +98,44 @@ fun StockChart(
                     )
                 )
             )
+        }
+
+        val stokePath = Path().apply {
+            val height = size.height
+
+            // logic will be to transform info (value below) to canvas coordinate system based on percentage of stock value
+            // values like:
+            // 1400 -> 81-100%
+            // 1300 -> 61-80%
+            // 1200 -> 41-60%   (if the stock value will be 1210 USD it will be placed on this height of the graph)
+            // 1100 -> 21-40%
+            // 1000 -> 0-20%
+            stockInfoList.forEachIndexed { index, currentIntradayInfo ->
+                val nextIntradayInfo = stockInfoList.getOrNull(index + 1) ?: stockInfoList.last()
+
+                val ratioDenominator = upperValue - lowerValue
+                val startRatio =
+                    (currentIntradayInfo.close - lowerValue) / ratioDenominator
+                val endRatio = (nextIntradayInfo.close - lowerValue) / ratioDenominator
+
+                if (index == 0) {
+                    moveTo(
+                        spacing,
+                        // - remember we start from point (0,0)
+                        //
+                        //  ^ - height
+                        //  |
+                        //  |
+                        //  |                                               ^ - height - spacing - (startRatio * height)
+                        //  |                                               |
+                        //  |   ^ - spacing                                 |
+                        //  |   |               ^ - startRatio * height     |
+                        //  |   |               |                           |
+                        //  v   v               v                           v
+                        height - spacing - (startRatio * height).toFloat()
+                    )
+                }
+            }
         }
     }
 

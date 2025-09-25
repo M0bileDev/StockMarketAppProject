@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -35,51 +36,58 @@ fun CompanyListingScreen(
     val companyListingState by state.collectAsStateWithLifecycle()
 
     with(companyListingState) {
-        Column(modifier = modifier.fillMaxSize()) {
-            OutlinedTextField(
+        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+            Column(
                 modifier = modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                value = searchQuery,
-                label = {
-                    Text(stringResource(R.string.search))
-                },
-                placeholder = {
-                    Text(stringResource(R.string.type_company_name_or_symbol))
-                },
-                maxLines = 1,
-                singleLine = true,
-                onValueChange = { query ->
-                    onEvent(CompanyListingEvent.OnSearchQueryChange(query))
-                }
-            )
-            PullToRefreshBox(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-                isRefreshing = isRefreshing,
-                onRefresh = {
-                    onEvent(CompanyListingEvent.OnRefresh)
-                }
+                    .fillMaxSize()
+                    .padding(innerPadding)
             ) {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(companies) { company ->
-                        CompanyListingItem(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    // TODO: add logic
-                                }
-                                .padding(16.dp),
-                            companyListingPresentation = company
-                        )
-                        if (company != companies.last()) {
-                            HorizontalDivider(
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                OutlinedTextField(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    value = searchQuery,
+                    label = {
+                        Text(stringResource(R.string.search))
+                    },
+                    placeholder = {
+                        Text(stringResource(R.string.type_company_name_or_symbol))
+                    },
+                    maxLines = 1,
+                    singleLine = true,
+                    onValueChange = { query ->
+                        onEvent(CompanyListingEvent.OnSearchQueryChange(query))
+                    }
+                )
+                PullToRefreshBox(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                    isRefreshing = isRefreshing,
+                    onRefresh = {
+                        onEvent(CompanyListingEvent.OnRefresh)
+                    }
+                ) {
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        items(companies) { company ->
+                            CompanyListingItem(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        // TODO: add logic
+                                    }
+                                    .padding(16.dp),
+                                companyListingPresentation = company
                             )
+                            if (company != companies.last()) {
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                                )
+                            }
                         }
                     }
                 }
             }
+
         }
     }
 }

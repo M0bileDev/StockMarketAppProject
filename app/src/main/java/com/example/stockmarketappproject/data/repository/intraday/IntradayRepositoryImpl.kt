@@ -6,8 +6,10 @@ import com.example.stockmarketappproject.data.model.intraday.CompanyIntradayInfo
 import com.example.stockmarketappproject.data.parser.intraday.DefaultCsvIntradayParser
 import com.example.stockmarketappproject.data.remote.api.IntradayApi
 import com.example.stockmarketappproject.utils.model.Resource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.withContext
 import okio.IOException
 import retrofit2.HttpException
 import javax.inject.Inject
@@ -39,33 +41,36 @@ class IntradayRepositoryImpl @Inject constructor(
         }
 
     override suspend fun fetchIntradayInfo(name: String): Resource<List<CompanyIntradayInfoData>> =
-        try {
-            val response = intradayApi.getIntradayInfo(name)
-            val data = defaultCsvIntradayParser.parse(response.byteStream())
-            val result = with(defaultIntradayDataMapper) {
-                data.map { companyIntradayInfoData ->
-                    companyIntradayInfoData.toCompanyIntradayInfoEntity(
-                        name
-                    )
+        withContext(Dispatchers.IO) {
+            try {
+                val response = intradayApi.getIntradayInfo(name)
+                val data = defaultCsvIntradayParser.parse(response.byteStream())
+                val result = with(defaultIntradayDataMapper) {
+                    data.map { companyIntradayInfoData ->
+                        companyIntradayInfoData.toCompanyIntradayInfoEntity(
+                            name
+                        )
+                    }
                 }
-            }
-            if (result.isEmpty()) throw IllegalStateException("Data is empty")
+                if (result.isEmpty()) throw IllegalStateException("Data is empty")
 
-            //todo logically when company listing was deleted, intraday info also has to be deleted (all info)
-            intradayDao.deleteCompanyIntradayInfo(name)
-            intradayDao.insertCompanyIntradayInfo(result)
-            Resource.Success(data)
-        } catch (ise: IllegalStateException) {
-            ise.printStackTrace()
-            Resource.Error(ise.localizedMessage)
-        } catch (ioe: IOException) {
-            ioe.printStackTrace()
-            Resource.Error(ioe.localizedMessage)
-        } catch (httpe: HttpException) {
-            httpe.printStackTrace()
-            Resource.Error(httpe.localizedMessage)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Resource.Error(e.localizedMessage)
+                //todo logically when company listing was deleted, intraday info also has to be deleted (all info)
+                intradayDao.deleteCompanyIntradayInfo(name)
+                intradayDao.insertCompanyIntradayInfo(result)
+                Resource.Success(data)
+            } catch (ise: IllegalStateException) {
+                ise.printStackTrace()
+                Resource.Error(ise.localizedMessage)
+            } catch (ioe: IOException) {
+                ioe.printStackTrace()
+                Resource.Error(ioe.localizedMessage)
+            } catch (httpe: HttpException) {
+                httpe.printStackTrace()
+                Resource.Error(httpe.localizedMessage)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Resource.Error(e.localizedMessage)
+            }
         }
+
 }

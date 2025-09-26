@@ -5,21 +5,21 @@ import com.example.stockmarketappproject.data.mappers.listing.DefaultListingData
 import com.example.stockmarketappproject.data.model.listing.CompanyListingData
 import com.example.stockmarketappproject.data.parser.listing.DefaultCsvListingParser
 import com.example.stockmarketappproject.data.remote.api.ListingApi
+import com.example.stockmarketappproject.utils.dispatcherprovider.DispatcherProvider
 import com.example.stockmarketappproject.utils.model.Resource
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.withContext
 import okio.IOException
 import retrofit2.HttpException
 import javax.inject.Inject
-import kotlin.printStackTrace
 
 class ListingRepositoryImpl @Inject constructor(
     private val listingApi: ListingApi,
     private val listingDao: ListingDao,
     private val defaultListingDataMapper: DefaultListingDataMapper,
-    private val defaultCsvListingParser: DefaultCsvListingParser
+    private val defaultCsvListingParser: DefaultCsvListingParser,
+    private val dispatcherProvider: DispatcherProvider
 ) : DefaultListingRepository {
 
     override fun getCompanyListing(query: String): Flow<Resource<List<CompanyListingData>>> =
@@ -41,7 +41,7 @@ class ListingRepositoryImpl @Inject constructor(
         }
 
     override suspend fun fetchCompanyListing(): Resource<List<CompanyListingData>> =
-        withContext(Dispatchers.IO) {
+        withContext(dispatcherProvider.io) {
             try {
                 val response = listingApi.getListings()
                 val data = defaultCsvListingParser.parse(response.byteStream())

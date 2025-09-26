@@ -4,8 +4,8 @@ import com.example.stockmarketappproject.data.local.dao.InfoDao
 import com.example.stockmarketappproject.data.mappers.info.DefaultInfoDataMapper
 import com.example.stockmarketappproject.data.model.info.CompanyInfoData
 import com.example.stockmarketappproject.data.remote.api.InfoApi
+import com.example.stockmarketappproject.utils.dispatcherprovider.DispatcherProvider
 import com.example.stockmarketappproject.utils.model.Resource
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.withContext
@@ -16,7 +16,8 @@ import javax.inject.Inject
 class InfoRepositoryImpl @Inject constructor(
     private val infoApi: InfoApi,
     private val infoDao: InfoDao,
-    private val defaultInfoDataMapper: DefaultInfoDataMapper
+    private val defaultInfoDataMapper: DefaultInfoDataMapper,
+    private val dispatcherProvider: DispatcherProvider
 ) : DefaultInfoRepository {
     override fun getCompanyInfo(name: String): Flow<Resource<CompanyInfoData?>> =
         infoDao.getCompanyInfo(name).transform { companyInfoEntity ->
@@ -39,7 +40,7 @@ class InfoRepositoryImpl @Inject constructor(
         }
 
     override suspend fun fetchCompanyInfo(name: String): Resource<CompanyInfoData> =
-        withContext(Dispatchers.IO) {
+        withContext(dispatcherProvider.io) {
             try {
                 val response = infoApi.getCompanyInfo(name)
                 if (response == null) throw IllegalStateException("Data is empty")

@@ -9,6 +9,7 @@ import com.example.stockmarketappproject.presentation.model.ViewModelEvents
 import com.example.stockmarketappproject.presentation.model.listing.CompanyListingEvent
 import com.example.stockmarketappproject.presentation.model.listing.CompanyListingState
 import com.example.stockmarketappproject.presentation.model.listing.ViewModelListingEvents
+import com.example.stockmarketappproject.utils.dispatcherprovider.DispatcherProvider
 import com.example.stockmarketappproject.utils.model.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -30,13 +31,14 @@ const val TAG = "CompanyListingViewModel"
 @HiltViewModel
 class CompanyListingViewModel @Inject constructor(
     private val stockRepository: DefaultListingRepository,
-    private val stockPresentationMapper: DefaultStockPresentationMapper
+    private val stockPresentationMapper: DefaultStockPresentationMapper,
+    dispatcherProvider: DispatcherProvider
 ) : ViewModel() {
 
     private var searchJob: Job? = null
     private var fetchJob: Job? = null
-    private val searchScope = CoroutineScope(Dispatchers.IO)
-    private val fetchScope = CoroutineScope(Dispatchers.IO)
+    private val searchScope = CoroutineScope(dispatcherProvider.io)
+    private val fetchScope = CoroutineScope(dispatcherProvider.io)
 
     private val _state = MutableStateFlow(CompanyListingState.createDefault())
     val state get() = _state.asStateFlow()

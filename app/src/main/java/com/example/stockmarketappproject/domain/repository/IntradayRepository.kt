@@ -10,7 +10,7 @@ interface IntradayRepository<Domain : DomainModel> {
         name: String
     ): Flow<Resource<List<Domain>>>
 
-    fun fetchIntradayInfo(
+    suspend fun fetchIntradayInfo(
         name: String
-    ): Flow<Resource<List<Domain>>>
+    ): Resource<List<Domain>>
 }

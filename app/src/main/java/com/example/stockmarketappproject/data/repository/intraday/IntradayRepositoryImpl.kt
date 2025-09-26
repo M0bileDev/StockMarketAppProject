@@ -5,8 +5,8 @@ import com.example.stockmarketappproject.data.mappers.intraday.DefaultIntradayDa
 import com.example.stockmarketappproject.data.model.intraday.CompanyIntradayInfoData
 import com.example.stockmarketappproject.data.parser.intraday.DefaultCsvIntradayParser
 import com.example.stockmarketappproject.data.remote.api.IntradayApi
+import com.example.stockmarketappproject.utils.dispatcherprovider.DispatcherProvider
 import com.example.stockmarketappproject.utils.model.Resource
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.withContext
@@ -18,7 +18,8 @@ class IntradayRepositoryImpl @Inject constructor(
     private val intradayApi: IntradayApi,
     private val intradayDao: IntradayDao,
     private val defaultIntradayDataMapper: DefaultIntradayDataMapper,
-    private val defaultCsvIntradayParser: DefaultCsvIntradayParser
+    private val defaultCsvIntradayParser: DefaultCsvIntradayParser,
+    private val dispatcherProvider: DispatcherProvider
 ) : DefaultIntradayRepository {
 
     override fun getIntradayInfo(name: String): Flow<Resource<List<CompanyIntradayInfoData>>> =
@@ -41,7 +42,7 @@ class IntradayRepositoryImpl @Inject constructor(
         }
 
     override suspend fun fetchIntradayInfo(name: String): Resource<List<CompanyIntradayInfoData>> =
-        withContext(Dispatchers.IO) {
+        withContext(dispatcherProvider.io) {
             try {
                 val response = intradayApi.getIntradayInfo(name)
                 val data = defaultCsvIntradayParser.parse(response.byteStream())

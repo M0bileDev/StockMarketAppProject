@@ -125,24 +125,23 @@ class CompanyListingViewModel @Inject constructor(
 
             _state.value = _state.value.copy(isRefreshing = true)
 
-            stockRepository.fetchCompanyListing().collect { resource ->
-                when (resource) {
-                    is Resource.Error -> {
-                        _viewModelEvent.emit(ViewModelEvents.NetworkError)
-                        Log.d(TAG, "handle error")
-                    }
-
-                    is Resource.Success -> {
-                        Log.d(TAG, "Data has been fetched successfully...")
-                    }
+            val result = stockRepository.fetchCompanyListing()
+            when (result) {
+                is Resource.Error -> {
+                    _viewModelEvent.emit(ViewModelEvents.NetworkError)
                 }
 
-                // TODO: also with state update?
-                //odd situation when result might be so quick that ui thread dont have enough
-                // time to redraw, especially pull to refresh animation
-                delay(500)
-                _state.value = _state.value.copy(isRefreshing = false)
+                is Resource.Success -> {
+                    Log.d(TAG, "Data has been fetched successfully...")
+                }
             }
+
+            // TODO: also with state update?
+            //odd situation when result might be so quick that ui thread dont have enough
+            // time to redraw, especially pull to refresh animation
+            delay(500)
+            _state.value = _state.value.copy(isRefreshing = false)
+
         }
     }
 

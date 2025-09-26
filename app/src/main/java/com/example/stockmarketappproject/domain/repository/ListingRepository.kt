@@ -10,5 +10,5 @@ interface ListingRepository<Domain : DomainModel> {
         query: String
     ): Flow<Resource<List<Domain>>>
 
-    suspend fun fetchCompanyListing(): Flow<Resource<List<Domain>>>
+    suspend fun fetchCompanyListing(): Resource<List<Domain>>
 }

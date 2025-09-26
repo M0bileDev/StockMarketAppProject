@@ -7,7 +7,6 @@ import com.example.stockmarketappproject.data.parser.listing.DefaultCsvListingPa
 import com.example.stockmarketappproject.data.remote.api.ListingApi
 import com.example.stockmarketappproject.utils.model.Resource
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.transform
 import okio.IOException
 import retrofit2.HttpException
@@ -26,35 +25,42 @@ class ListingRepositoryImpl @Inject constructor(
                 val result = with(defaultListingDataMapper) {
                     companyListingEntities.map { entity -> entity.toCompanyListingData() }
                 }
+                if (result.isEmpty()) throw IllegalStateException("Data is empty")
+
                 emit(Resource.Success(data = result))
+            } catch (ise: IllegalStateException) {
+                ise.printStackTrace()
+                emit(Resource.Error(ise.localizedMessage))
             } catch (e: Exception) {
+                e.printStackTrace()
                 emit(Resource.Error(e.localizedMessage))
             }
         }
 
-    override suspend fun fetchCompanyListing(): Flow<Resource<List<CompanyListingData>>> {
-        return flow {
-            try {
-                val response = listingApi.getListings()
-                val data = defaultCsvListingParser.parse(response.byteStream())
-                val result = with(defaultListingDataMapper) {
-                    data.map { companyListingData -> companyListingData.toCompanyListingEntity() }
-                }
-                if (result.isEmpty()) throw IllegalStateException("Data is empty")
-
-                // TODO: think about upsert
-                listingDao.clearCompanyListings()
-                listingDao.insertCompanyListing(result)
-                emit(Resource.Success(data))
-            } catch (ise: IllegalStateException) {
-                emit(Resource.Error(ise.localizedMessage))
-            } catch (ioe: IOException) {
-                emit(Resource.Error(ioe.localizedMessage))
-            } catch (httpe: HttpException) {
-                emit(Resource.Error(httpe.localizedMessage))
+    override suspend fun fetchCompanyListing(): Resource<List<CompanyListingData>> =
+        try {
+            val response = listingApi.getListings()
+            val data = defaultCsvListingParser.parse(response.byteStream())
+            val result = with(defaultListingDataMapper) {
+                data.map { companyListingData -> companyListingData.toCompanyListingEntity() }
             }
+            if (result.isEmpty()) throw IllegalStateException("Data is empty")
+
+            // TODO: think about upsert
+            listingDao.clearCompanyListings()
+            listingDao.insertCompanyListing(result)
+            Resource.Success(data)
+        } catch (ise: IllegalStateException) {
+            ise.printStackTrace()
+            Resource.Error(ise.localizedMessage)
+        } catch (ioe: IOException) {
+            ioe.printStackTrace()
+            Resource.Error(ioe.localizedMessage)
+        } catch (httpe: HttpException) {
+            httpe.printStackTrace()
+            Resource.Error(httpe.localizedMessage)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Resource.Error(e.localizedMessage)
         }
-    }
-
-
 }

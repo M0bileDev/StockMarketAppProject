@@ -5,8 +5,10 @@ import com.example.stockmarketappproject.data.mappers.info.DefaultInfoDataMapper
 import com.example.stockmarketappproject.data.model.info.CompanyInfoData
 import com.example.stockmarketappproject.data.remote.api.InfoApi
 import com.example.stockmarketappproject.utils.model.Resource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.withContext
 import okio.IOException
 import retrofit2.HttpException
 import javax.inject.Inject
@@ -37,32 +39,35 @@ class InfoRepositoryImpl @Inject constructor(
         }
 
     override suspend fun fetchCompanyInfo(name: String): Resource<CompanyInfoData> =
-        try {
-            val response = infoApi.getCompanyInfo(name)
-            if (response == null) throw IllegalStateException("Data is empty")
+        withContext(Dispatchers.IO) {
+            try {
+                val response = infoApi.getCompanyInfo(name)
+                if (response == null) throw IllegalStateException("Data is empty")
 
-            val data = with(defaultInfoDataMapper) {
-                response.toCompanyInfoData()
+                val data = with(defaultInfoDataMapper) {
+                    response.toCompanyInfoData()
+                }
+                val result = with(defaultInfoDataMapper) {
+                    data.toCompanyInfoEntity()
+                }
+
+                infoDao.deleteCompanyInfo(name)
+                infoDao.insertCompanyInfo(result)
+
+                Resource.Success(data)
+            } catch (ise: IllegalStateException) {
+                ise.printStackTrace()
+                Resource.Error(ise.localizedMessage)
+            } catch (ioe: IOException) {
+                ioe.printStackTrace()
+                Resource.Error(ioe.localizedMessage)
+            } catch (httpe: HttpException) {
+                httpe.printStackTrace()
+                Resource.Error(httpe.localizedMessage)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Resource.Error(e.localizedMessage)
             }
-            val result = with(defaultInfoDataMapper) {
-                data.toCompanyInfoEntity()
-            }
-
-            infoDao.deleteCompanyInfo(name)
-            infoDao.insertCompanyInfo(result)
-
-            Resource.Success(data)
-        } catch (ise: IllegalStateException) {
-            ise.printStackTrace()
-            Resource.Error(ise.localizedMessage)
-        } catch (ioe: IOException) {
-            ioe.printStackTrace()
-            Resource.Error(ioe.localizedMessage)
-        } catch (httpe: HttpException) {
-            httpe.printStackTrace()
-            Resource.Error(httpe.localizedMessage)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Resource.Error(e.localizedMessage)
         }
+
 }

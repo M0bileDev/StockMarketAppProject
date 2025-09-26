@@ -55,8 +55,12 @@ class IntradayRepositoryImpl @Inject constructor(
                 if (result.isEmpty()) throw IllegalStateException("Data is empty")
 
                 //todo logically when company listing was deleted, intraday info also has to be deleted (all info)
-                intradayDao.deleteCompanyIntradayInfo(name)
-                intradayDao.insertCompanyIntradayInfo(result)
+                // TODO: probably add trigger on db
+                with(intradayDao) {
+                    deleteCompanyIntradayInfo(name)
+                    insertCompanyIntradayInfo(result)
+                }
+
                 Resource.Success(data)
             } catch (ise: IllegalStateException) {
                 ise.printStackTrace()

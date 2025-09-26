@@ -51,8 +51,11 @@ class ListingRepositoryImpl @Inject constructor(
                 if (result.isEmpty()) throw IllegalStateException("Data is empty")
 
                 // TODO: think about upsert
-                listingDao.clearCompanyListings()
-                listingDao.insertCompanyListing(result)
+                with(listingDao) {
+                    clearCompanyListings()
+                    insertCompanyListing(result)
+                }
+
                 Resource.Success(data)
             } catch (ise: IllegalStateException) {
                 ise.printStackTrace()

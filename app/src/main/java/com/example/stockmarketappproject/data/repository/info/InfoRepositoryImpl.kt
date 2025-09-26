@@ -51,8 +51,10 @@ class InfoRepositoryImpl @Inject constructor(
                     data.toCompanyInfoEntity()
                 }
 
-                infoDao.deleteCompanyInfo(name)
-                infoDao.insertCompanyInfo(result)
+                with(infoDao) {
+                    deleteCompanyInfo(name)
+                    insertCompanyInfo(result)
+                }
 
                 Resource.Success(data)
             } catch (ise: IllegalStateException) {

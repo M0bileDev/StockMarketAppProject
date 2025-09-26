@@ -75,7 +75,7 @@ fun CompanyListingScreen(
                                 .padding(16.dp),
                             companyListingPresentation = company
                         )
-                        // TODO: think about extract this validation to separate function 
+                        // TODO: think about extract this validation to separate function
                         if (company != companies.last()) {
                             HorizontalDivider(
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)

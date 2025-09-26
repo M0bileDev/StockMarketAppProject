@@ -9,10 +9,10 @@ import com.example.stockmarketappproject.data.repository.intraday.DefaultIntrada
 import com.example.stockmarketappproject.presentation.model.ViewModelEvents
 import com.example.stockmarketappproject.presentation.model.info.CompanyInfoState
 import com.example.stockmarketappproject.presentation.model.info.ViewModelInfoEvents
+import com.example.stockmarketappproject.utils.dispatcherprovider.DispatcherProvider
 import com.example.stockmarketappproject.utils.model.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -30,7 +30,8 @@ const val TAG = "CompanyInfoViewModel"
 class CompanyInfoViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val companyInfoRepository: DefaultInfoRepository,
-    private val intradayRepository: DefaultIntradayRepository
+    private val intradayRepository: DefaultIntradayRepository,
+    dispatcherProvider: DispatcherProvider
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CompanyInfoState.createDefault())
@@ -42,7 +43,7 @@ class CompanyInfoViewModel @Inject constructor(
     private val name = savedStateHandle.get<String>("name")
 
     private var fetchJob: Job? = null
-    private val fetchScope = CoroutineScope(Dispatchers.IO)
+    private val fetchScope = CoroutineScope(dispatcherProvider.io)
 
     init {
         fetch()

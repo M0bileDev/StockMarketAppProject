@@ -9,12 +9,12 @@ import com.example.stockmarketappproject.data.repository.intraday.DefaultIntrada
 import com.example.stockmarketappproject.presentation.model.ViewModelEvents
 import com.example.stockmarketappproject.presentation.model.info.CompanyInfoState
 import com.example.stockmarketappproject.presentation.model.info.ViewModelInfoEvents
-import com.example.stockmarketappproject.presentation.screen.companylisting.TAG
 import com.example.stockmarketappproject.utils.model.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +23,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+const val TAG = "CompanyInfoViewModel"
 
 @HiltViewModel
 class CompanyInfoViewModel @Inject constructor(
@@ -38,47 +40,64 @@ class CompanyInfoViewModel @Inject constructor(
     val event get() = _viewModelEvent.asSharedFlow()
 
     private val name = savedStateHandle.get<String>("name")
-    private var fetchInfoJob: Job? = null
-    private val fetchInfoScope = CoroutineScope(Dispatchers.IO)
 
-    private var fetchIntradayJob: Job? = null
-    private val fetchIntradayScope = CoroutineScope(Dispatchers.IO)
-
-    // TODO: resolve problem with refreshing, since both calls are executed separately
+    private var fetchJob: Job? = null
+    private val fetchScope = CoroutineScope(Dispatchers.IO)
 
     init {
-        fetchCompanyInfo()
-        fetchIntradayInfo()
+        fetch()
     }
 
-    private fun fetchIntradayInfo() = fetchOnNavigationArgumentOrError(
+    private fun fetch() = fetchOnNavigationArgumentOrError(
         navArg = name,
         onFetch = { arg ->
-            with(fetchIntradayScope) {
-                fetchIntradayJob?.cancel()
-                fetchIntradayJob = launch {
+            with(fetchScope) {
+                fetchJob?.cancel()
+                fetchJob = launch {
                     if (!isActive) return@launch
 
                     _state.value = _state.value.copy(isRefreshing = true)
 
-                    intradayRepository.fetchIntradayInfo(arg).collect { resource ->
-                        when (resource) {
-                            is Resource.Error -> {
-                                _viewModelEvent.emit(ViewModelEvents.NetworkError)
-                                Log.d(TAG, "handle error")
-                            }
+                    val infoResult = async { companyInfoRepository.fetchCompanyInfo(arg) }
+                    val intradayResult = async { intradayRepository.fetchIntradayInfo(arg) }
 
-                            is Resource.Success -> {
-                                Log.d(TAG, "Data has been fetched successfully...")
+                    mergeDeferred(
+                        infoResult.await(),
+                        intradayResult.await(),
+                        onResult1 = { resource ->
+                            when (resource) {
+                                is Resource.Error -> {
+                                    _viewModelEvent.emit(ViewModelEvents.NetworkError)
+                                }
+
+                                is Resource.Success -> {
+                                    Log.d(
+                                        TAG,
+                                        "Data has been fetched successfully..."
+                                    )
+                                }
+                            }
+                        },
+                        onResult2 = { resource ->
+                            when (resource) {
+                                is Resource.Error -> {
+                                    _viewModelEvent.emit(ViewModelEvents.NetworkError)
+                                }
+
+                                is Resource.Success -> {
+                                    Log.d(
+                                        TAG,
+                                        "Data has been fetched successfully..."
+                                    )
+                                }
                             }
                         }
+                    )
 
-                        // TODO: also with state update?
-                        //odd situation when result might be so quick that ui thread dont have enough
-                        // time to redraw, especially pull to refresh animation
-                        delay(500)
-                        _state.value = _state.value.copy(isRefreshing = false)
-                    }
+                    //odd situation when result might be so quick that ui thread dont have enough
+                    // time to redraw, especially pull to refresh animation
+                    delay(500)
+                    _state.value = _state.value.copy(isRefreshing = false)
                 }
             }
         },
@@ -89,44 +108,16 @@ class CompanyInfoViewModel @Inject constructor(
         }
     )
 
-    private fun fetchCompanyInfo() = fetchOnNavigationArgumentOrError(
-        navArg = name,
-        onFetch = { arg ->
-            with(fetchInfoScope) {
-                fetchInfoJob?.cancel()
-                fetchInfoJob = launch {
-                    if (!isActive) return@launch
 
-                    _state.value = _state.value.copy(isRefreshing = true)
-
-                    companyInfoRepository.fetchCompanyInfo(arg).collect { resource ->
-                        when (resource) {
-                            is Resource.Error -> {
-                                _viewModelEvent.emit(ViewModelEvents.NetworkError)
-                                Log.d(TAG, "handle error")
-                            }
-
-                            is Resource.Success -> {
-                                Log.d(TAG, "Data has been fetched successfully...")
-                            }
-                        }
-
-                        // TODO: also with state update?
-                        //odd situation when result might be so quick that ui thread dont have enough
-                        // time to redraw, especially pull to refresh animation
-                        delay(500)
-                        _state.value = _state.value.copy(isRefreshing = false)
-                    }
-                }
-            }
-        },
-        onError = {
-            viewModelScope.launch {
-                _viewModelEvent.emit(ViewModelInfoEvents.NavigationArgumentError)
-            }
-        }
-    )
-
+    suspend fun <R1, R2> mergeDeferred(
+        result1: Resource<R1>,
+        result2: Resource<R2>,
+        onResult1: suspend (Resource<R1>) -> Unit,
+        onResult2: suspend (Resource<R2>) -> Unit
+    ) {
+        onResult1(result1)
+        onResult2(result2)
+    }
 
     private fun <NavArg> fetchOnNavigationArgumentOrError(
         navArg: NavArg?,
@@ -140,7 +131,6 @@ class CompanyInfoViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        fetchInfoJob?.cancel()
-        fetchIntradayJob?.cancel()
+        fetchJob?.cancel()
     }
 }

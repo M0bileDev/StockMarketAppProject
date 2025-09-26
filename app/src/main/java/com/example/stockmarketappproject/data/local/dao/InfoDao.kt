@@ -25,5 +25,5 @@ interface InfoDao {
         LIMIT 1
             """
     )
-    fun getCompanyInfo(name: String): Flow<CompanyInfoEntity>
+    fun getCompanyInfo(name: String): Flow<CompanyInfoEntity?>
 }

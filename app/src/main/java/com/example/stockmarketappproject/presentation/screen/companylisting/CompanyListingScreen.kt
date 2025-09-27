@@ -70,7 +70,7 @@ fun CompanyListingScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                    onNavigateToCompanyInfo(company.name)
+                                    onNavigateToCompanyInfo(company.symbol)
                                 }
                                 .padding(16.dp),
                             companyListingPresentation = company

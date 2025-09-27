@@ -40,7 +40,7 @@ class CompanyInfoViewModel @Inject constructor(
     private val _viewModelEvent = MutableSharedFlow<ViewModelEvents>()
     val event get() = _viewModelEvent.asSharedFlow()
 
-    private val name = savedStateHandle.get<String>("name")
+    private val name = savedStateHandle.get<String>("symbol")
 
     private var fetchJob: Job? = null
     private val fetchScope = CoroutineScope(dispatcherProvider.io)

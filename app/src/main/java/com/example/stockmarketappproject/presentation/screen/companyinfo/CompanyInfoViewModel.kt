@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.stockmarketappproject.data.repository.info.DefaultInfoRepository
 import com.example.stockmarketappproject.data.repository.intraday.DefaultIntradayRepository
+import com.example.stockmarketappproject.presentation.mapper.info.InfoPresentationMapper
+import com.example.stockmarketappproject.presentation.mapper.intraday.IntradayPresentationMapper
 import com.example.stockmarketappproject.presentation.model.ViewModelEvents
 import com.example.stockmarketappproject.presentation.model.info.CompanyInfoState
 import com.example.stockmarketappproject.presentation.model.info.ViewModelInfoEvents
@@ -20,6 +22,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,6 +34,8 @@ class CompanyInfoViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val companyInfoRepository: DefaultInfoRepository,
     private val intradayRepository: DefaultIntradayRepository,
+    private val infoPresentationMapper: InfoPresentationMapper,
+    private val intradayPresentationMapper: IntradayPresentationMapper,
     dispatcherProvider: DispatcherProvider
 ) : ViewModel() {
 
@@ -40,18 +45,55 @@ class CompanyInfoViewModel @Inject constructor(
     private val _viewModelEvent = MutableSharedFlow<ViewModelEvents>()
     val event get() = _viewModelEvent.asSharedFlow()
 
-    private val name = savedStateHandle.get<String>("symbol")
+    private val symbol = savedStateHandle.get<String>("symbol")
 
     private var fetchJob: Job? = null
     private val fetchScope = CoroutineScope(dispatcherProvider.io)
 
+    private var collectInfoJob: Job? = null
+    private val collectInfoScope = CoroutineScope(dispatcherProvider.io)
+
     init {
-        fetch()
+        collectCompanyInfo()
+        collectIntradayInfo()
+        fetchCompanyInfo()
     }
 
-    private fun fetch() = fetchOnNavigationArgumentOrError(
-        navArg = name,
-        onFetch = { arg ->
+    private fun collectIntradayInfo() {
+        // TODO: add implementation
+    }
+
+    private fun collectCompanyInfo() =
+        actionOnNavigationArgumentOrError(symbol, onAction = { arg ->
+            with(collectInfoScope) {
+                collectInfoJob?.cancel()
+                collectInfoJob = launch {
+                    if (!isActive) return@launch
+
+                    companyInfoRepository.getCompanyInfo(arg).collectLatest { resource ->
+                        when (resource) {
+                            is Resource.Error -> {
+                                _viewModelEvent.emit(ViewModelEvents.DatabaseError)
+                            }
+
+                            is Resource.Success -> {
+                                val data = resource.successData
+                                val presentation = with(infoPresentationMapper) {
+                                    data.toPresentation()
+                                }
+                                _state.value = _state.value.copy(company = presentation)
+                            }
+                        }
+                    }
+                }
+            }
+        }, onError = {
+            emitNavigationArgumentError()
+        })
+
+    private fun fetchCompanyInfo() = actionOnNavigationArgumentOrError(
+        navArg = symbol,
+        onAction = { arg ->
             with(fetchScope) {
                 fetchJob?.cancel()
                 fetchJob = launch {
@@ -74,6 +116,7 @@ class CompanyInfoViewModel @Inject constructor(
                                 is Resource.Success -> {
                                     Log.d(
                                         TAG,
+                                        // TODO: could be more explicit
                                         "Data has been fetched successfully..."
                                     )
                                 }
@@ -88,6 +131,7 @@ class CompanyInfoViewModel @Inject constructor(
                                 is Resource.Success -> {
                                     Log.d(
                                         TAG,
+                                        // TODO: could be more explicit
                                         "Data has been fetched successfully..."
                                     )
                                 }
@@ -103,11 +147,15 @@ class CompanyInfoViewModel @Inject constructor(
             }
         },
         onError = {
-            viewModelScope.launch {
-                _viewModelEvent.emit(ViewModelInfoEvents.NavigationArgumentError)
-            }
+            emitNavigationArgumentError()
         }
     )
+
+    private fun emitNavigationArgumentError() {
+        viewModelScope.launch {
+            _viewModelEvent.emit(ViewModelInfoEvents.NavigationArgumentError)
+        }
+    }
 
 
     suspend fun <R1, R2> mergeDeferred(
@@ -120,18 +168,19 @@ class CompanyInfoViewModel @Inject constructor(
         onResult2(result2)
     }
 
-    private fun <NavArg> fetchOnNavigationArgumentOrError(
+    fun <NavArg> actionOnNavigationArgumentOrError(
         navArg: NavArg?,
-        onFetch: (NavArg) -> Unit,
+        onAction: (NavArg) -> Unit,
         onError: () -> Unit
     ) {
         navArg?.let { arg ->
-            onFetch(arg)
+            onAction(arg)
         } ?: onError()
     }
 
     override fun onCleared() {
         super.onCleared()
         fetchJob?.cancel()
+        collectInfoJob?.cancel()
     }
 }

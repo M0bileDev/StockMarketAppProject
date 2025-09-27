@@ -14,16 +14,16 @@ interface InfoDao {
         companyInfo: CompanyInfoEntity
     )
 
-    @Query("DELETE FROM company_info_entity WHERE name == :name")
-    suspend fun deleteCompanyInfo(name: String)
+    @Query("DELETE FROM company_info_entity WHERE symbol == :query")
+    suspend fun deleteCompanyInfo(query: String)
 
     @Query(
         """
         SELECT * 
         FROM company_info_entity 
-        WHERE LOWER(name) == :name
+        WHERE LOWER(symbol) == :query
         LIMIT 1
             """
     )
-    fun getCompanyInfo(name: String): Flow<CompanyInfoEntity?>
+    fun getCompanyInfo(query: String): Flow<CompanyInfoEntity?>
 }

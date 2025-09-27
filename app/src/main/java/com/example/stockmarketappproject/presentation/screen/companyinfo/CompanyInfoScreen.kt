@@ -3,8 +3,6 @@
 package com.example.stockmarketappproject.presentation.screen.companyinfo
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -56,7 +55,7 @@ fun CompanyInfoScreen(
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
                     .padding(16.dp)
-                    .scrollable(scrollable, orientation = Orientation.Vertical)
+                    .verticalScroll(scrollable),
             ) {
                 company?.let { companyInfoPresentation ->
                     Text(
@@ -113,10 +112,10 @@ fun CompanyInfoScreen(
                         text = stringResource(R.string.market_summary),
                         fontSize = 14.sp,
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
                     StockChart(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .padding(top = 64.dp, bottom = 32.dp)
                             .height(250.dp)
                             .align(Alignment.CenterHorizontally), stockInfoList = stockInfoList
                     )
@@ -126,5 +125,4 @@ fun CompanyInfoScreen(
             }
         }
     }
-
 }

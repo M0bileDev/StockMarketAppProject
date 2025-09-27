@@ -8,7 +8,7 @@ interface InfoRepository<Domain : DomainModel> {
 
     fun getCompanyInfo(
         query: String
-    ): Flow<Resource<Domain?>>
+    ): Flow<Resource<Domain>>
 
     suspend fun fetchCompanyInfo(
         symbol: String

@@ -29,7 +29,7 @@ class InfoRepositoryImpl @Inject constructor(
                     companyInfoEntity.toCompanyInfoData()
                 }
 
-                emit(Resource.Success(result))
+                emit(Resource.Success(successData = result))
             } catch (ise: IllegalStateException) {
                 ise.printStackTrace()
                 emit(Resource.Error(ise.localizedMessage))

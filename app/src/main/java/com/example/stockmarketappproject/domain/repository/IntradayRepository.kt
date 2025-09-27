@@ -7,10 +7,10 @@ import kotlinx.coroutines.flow.Flow
 interface IntradayRepository<Domain : DomainModel> {
 
     fun getIntradayInfo(
-        name: String
+        query: String
     ): Flow<Resource<List<Domain>>>
 
     suspend fun fetchIntradayInfo(
-        name: String
+        symbol: String
     ): Resource<List<Domain>>
 }

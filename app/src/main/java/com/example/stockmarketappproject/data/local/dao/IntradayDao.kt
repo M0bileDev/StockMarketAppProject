@@ -21,7 +21,7 @@ interface IntradayDao {
         """
         SELECT * 
         FROM company_intraday_info_entity 
-        WHERE LOWER(symbol) == :query
+        WHERE symbol == :query
             """
     )
     fun getCompanyIntradayInfoEntities(query: String): Flow<List<CompanyIntradayInfoEntity>>

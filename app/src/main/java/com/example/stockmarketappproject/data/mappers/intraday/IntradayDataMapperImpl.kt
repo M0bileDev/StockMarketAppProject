@@ -20,13 +20,13 @@ class IntradayDataMapperImpl @Inject constructor(
         )
     }
 
-    override fun CompanyIntradayInfoData.toCompanyIntradayInfoEntity(name: String): CompanyIntradayInfoEntity {
+    override fun CompanyIntradayInfoData.toCompanyIntradayInfoEntity(symbol: String): CompanyIntradayInfoEntity {
         val timeStamp = with(localDateTimeFormatter) {
             timestamp.fromToString()
         }
 
         return CompanyIntradayInfoEntity(
-            name = name,
+            symbol = symbol,
             timestamp = timeStamp,
             close = close
         )

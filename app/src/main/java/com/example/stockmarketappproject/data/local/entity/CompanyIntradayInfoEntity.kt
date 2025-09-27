@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 data class CompanyIntradayInfoEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val name: String,
+    val symbol: String,
     val timestamp: String,
     val close: Double
 ) : EntityModel

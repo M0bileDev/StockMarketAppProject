@@ -53,43 +53,76 @@ class CompanyInfoViewModel @Inject constructor(
     private var collectInfoJob: Job? = null
     private val collectInfoScope = CoroutineScope(dispatcherProvider.io)
 
+    private var collectIntradayJob: Job? = null
+    private val collectIntradayScope = CoroutineScope(dispatcherProvider.io)
+
     init {
+        // TODO: possible combine could work better
         collectCompanyInfo()
         collectIntradayInfo()
         fetchCompanyInfo()
     }
 
-    private fun collectIntradayInfo() {
-        // TODO: add implementation
-    }
+    private fun collectIntradayInfo() =
+        actionOnNavigationArgumentOrError(
+            symbol,
+            onAction = { arg ->
+                with(collectIntradayScope) {
+                    collectIntradayJob?.cancel()
+                    collectIntradayJob = launch {
+                        if (!isActive) return@launch
 
-    private fun collectCompanyInfo() =
-        actionOnNavigationArgumentOrError(symbol, onAction = { arg ->
-            with(collectInfoScope) {
-                collectInfoJob?.cancel()
-                collectInfoJob = launch {
-                    if (!isActive) return@launch
+                        intradayRepository.getIntradayInfo(arg).collectLatest { resource ->
+                            when (resource) {
+                                is Resource.Error -> {
+                                    _viewModelEvent.emit(ViewModelEvents.DatabaseError)
+                                }
 
-                    companyInfoRepository.getCompanyInfo(arg).collectLatest { resource ->
-                        when (resource) {
-                            is Resource.Error -> {
-                                _viewModelEvent.emit(ViewModelEvents.DatabaseError)
+                                is Resource.Success -> {
+                                    val data = resource.successData
+                                    val presentation = with(intradayPresentationMapper) {
+                                        data.map { data -> data.toPresentation() }
+                                    }
+                                    _state.value = _state.value.copy(stockInfoList = presentation)
+                                }
                             }
 
-                            is Resource.Success -> {
-                                val data = resource.successData
-                                val presentation = with(infoPresentationMapper) {
-                                    data.toPresentation()
+                        }
+                    }
+                }
+            }, onError = {
+                emitNavigationArgumentError()
+            })
+
+    private fun collectCompanyInfo() =
+        actionOnNavigationArgumentOrError(
+            symbol,
+            onAction = { arg ->
+                with(collectInfoScope) {
+                    collectInfoJob?.cancel()
+                    collectInfoJob = launch {
+                        if (!isActive) return@launch
+
+                        companyInfoRepository.getCompanyInfo(arg).collectLatest { resource ->
+                            when (resource) {
+                                is Resource.Error -> {
+                                    _viewModelEvent.emit(ViewModelEvents.DatabaseError)
                                 }
-                                _state.value = _state.value.copy(company = presentation)
+
+                                is Resource.Success -> {
+                                    val data = resource.successData
+                                    val presentation = with(infoPresentationMapper) {
+                                        data.toPresentation()
+                                    }
+                                    _state.value = _state.value.copy(company = presentation)
+                                }
                             }
                         }
                     }
                 }
-            }
-        }, onError = {
-            emitNavigationArgumentError()
-        })
+            }, onError = {
+                emitNavigationArgumentError()
+            })
 
     private fun fetchCompanyInfo() = actionOnNavigationArgumentOrError(
         navArg = symbol,

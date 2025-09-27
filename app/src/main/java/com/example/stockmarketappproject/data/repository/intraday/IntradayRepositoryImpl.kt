@@ -22,8 +22,8 @@ class IntradayRepositoryImpl @Inject constructor(
     private val dispatcherProvider: DispatcherProvider
 ) : DefaultIntradayRepository {
 
-    override fun getIntradayInfo(name: String): Flow<Resource<List<CompanyIntradayInfoData>>> =
-        intradayDao.getCompanyIntradayInfoEntities(name).transform { companyIntradayInfoEntities ->
+    override fun getIntradayInfo(query: String): Flow<Resource<List<CompanyIntradayInfoData>>> =
+        intradayDao.getCompanyIntradayInfoEntities(query).transform { companyIntradayInfoEntities ->
             try {
                 val result = with(defaultIntradayDataMapper) {
                     companyIntradayInfoEntities.map { entity -> entity.toCompanyIntradayInfoData() }
@@ -41,15 +41,15 @@ class IntradayRepositoryImpl @Inject constructor(
             }
         }
 
-    override suspend fun fetchIntradayInfo(name: String): Resource<List<CompanyIntradayInfoData>> =
+    override suspend fun fetchIntradayInfo(symbol: String): Resource<List<CompanyIntradayInfoData>> =
         withContext(dispatcherProvider.io) {
             try {
-                val response = intradayApi.getIntradayInfo(name)
+                val response = intradayApi.getIntradayInfo(symbol)
                 val data = defaultCsvIntradayParser.parse(response.byteStream())
                 val result = with(defaultIntradayDataMapper) {
                     data.map { companyIntradayInfoData ->
                         companyIntradayInfoData.toCompanyIntradayInfoEntity(
-                            name
+                            symbol
                         )
                     }
                 }
@@ -58,7 +58,7 @@ class IntradayRepositoryImpl @Inject constructor(
                 //todo logically when company listing was deleted, intraday info also has to be deleted (all info)
                 // TODO: probably add trigger on db
                 with(intradayDao) {
-                    deleteCompanyIntradayInfo(name)
+                    deleteCompanyIntradayInfo(symbol)
                     insertCompanyIntradayInfo(result)
                 }
 

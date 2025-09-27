@@ -21,7 +21,7 @@ interface InfoDao {
         """
         SELECT * 
         FROM company_info_entity 
-        WHERE LOWER(symbol) == :query
+        WHERE symbol == :query
         LIMIT 1
             """
     )

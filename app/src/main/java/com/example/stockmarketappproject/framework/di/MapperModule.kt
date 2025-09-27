@@ -6,8 +6,12 @@ import com.example.stockmarketappproject.data.mappers.intraday.DefaultIntradayDa
 import com.example.stockmarketappproject.data.mappers.intraday.IntradayDataMapperImpl
 import com.example.stockmarketappproject.data.mappers.listing.DefaultListingDataMapper
 import com.example.stockmarketappproject.data.mappers.listing.ListingDataMapperImpl
-import com.example.stockmarketappproject.presentation.mapper.DefaultStockPresentationMapper
-import com.example.stockmarketappproject.presentation.mapper.StockPresentationMapperImpl
+import com.example.stockmarketappproject.presentation.mapper.info.InfoPresentationMapper
+import com.example.stockmarketappproject.presentation.mapper.info.InfoPresentationMapperImpl
+import com.example.stockmarketappproject.presentation.mapper.intraday.IntradayPresentationMapper
+import com.example.stockmarketappproject.presentation.mapper.intraday.IntradayPresentationMapperImpl
+import com.example.stockmarketappproject.presentation.mapper.listing.ListingPresentationMapper
+import com.example.stockmarketappproject.presentation.mapper.listing.ListingPresentationMapperImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -21,11 +25,17 @@ abstract class MapperModule {
     abstract fun bindListingDataMapper(listingDataMapperImpl: ListingDataMapperImpl): DefaultListingDataMapper
 
     @[Binds Singleton]
-    abstract fun bindStockPresentationMapper(stockPresentationMapperImpl: StockPresentationMapperImpl): DefaultStockPresentationMapper
+    abstract fun bindListingPresentationMapper(listingPresentationMapperImpl: ListingPresentationMapperImpl): ListingPresentationMapper
 
     @[Binds Singleton]
     abstract fun bindInfoDataMapper(infoDataMapperImpl: InfoDataMapperImpl): DefaultInfoDataMapper
 
     @[Binds Singleton]
     abstract fun bindIntradayDataMapper(intradayDataMapperImpl: IntradayDataMapperImpl): DefaultIntradayDataMapper
+
+    @[Binds Singleton]
+    abstract fun bindInfoPresentationMapper(infoPresentationMapperImpl: InfoPresentationMapperImpl): InfoPresentationMapper
+
+    @[Binds Singleton]
+    abstract fun bindIntradayPresentationMapper(intradayPresentationMapperImpl: IntradayPresentationMapperImpl): IntradayPresentationMapper
 }

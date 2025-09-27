@@ -31,7 +31,7 @@ class IntradayRepositoryImpl @Inject constructor(
 
                 if (result.isEmpty()) throw IllegalStateException("Data is empty")
 
-                emit(Resource.Success(data = result))
+                emit(Resource.Success(successData = result))
             } catch (ise: IllegalStateException) {
                 ise.printStackTrace()
                 emit(Resource.Error(ise.localizedMessage))

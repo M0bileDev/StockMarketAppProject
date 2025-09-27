@@ -1,0 +1,7 @@
+package com.example.stockmarketappproject.presentation.mapper.info
+
+import com.example.stockmarketappproject.data.model.info.CompanyInfoData
+import com.example.stockmarketappproject.presentation.mapper.PresentationMapper
+import com.example.stockmarketappproject.presentation.model.info.CompanyInfoPresentation
+
+interface InfoPresentationMapper : PresentationMapper<CompanyInfoData, CompanyInfoPresentation>

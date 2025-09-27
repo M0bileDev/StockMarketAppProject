@@ -1,0 +1,8 @@
+package com.example.stockmarketappproject.presentation.mapper.intraday
+
+import com.example.stockmarketappproject.data.model.intraday.CompanyIntradayInfoData
+import com.example.stockmarketappproject.presentation.mapper.PresentationMapper
+import com.example.stockmarketappproject.presentation.model.intraday.CompanyIntradayInfoPresentation
+
+interface IntradayPresentationMapper :
+    PresentationMapper<CompanyIntradayInfoData, CompanyIntradayInfoPresentation>

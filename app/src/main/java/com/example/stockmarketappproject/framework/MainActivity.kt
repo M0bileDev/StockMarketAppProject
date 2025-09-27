@@ -85,8 +85,8 @@ private fun StockMarketApp() {
                         onRefresh = {
                             onEvent(CompanyListingEvent.OnRefresh)
                         },
-                        onNavigateToCompanyInfo = { name ->
-                            onEvent(CompanyListingEvent.OnNavigate(name))
+                        onNavigateToCompanyInfo = { symbol ->
+                            onEvent(CompanyListingEvent.OnNavigate(symbol))
                         }
                     )
                 }

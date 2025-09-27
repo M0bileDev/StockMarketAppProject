@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.stockmarketappproject.data.repository.listing.DefaultListingRepository
-import com.example.stockmarketappproject.presentation.mapper.DefaultStockPresentationMapper
+import com.example.stockmarketappproject.presentation.mapper.listing.ListingPresentationMapper
 import com.example.stockmarketappproject.presentation.model.ViewModelEvents
 import com.example.stockmarketappproject.presentation.model.listing.CompanyListingEvent
 import com.example.stockmarketappproject.presentation.model.listing.CompanyListingState
@@ -30,7 +30,7 @@ const val TAG = "CompanyListingViewModel"
 @HiltViewModel
 class CompanyListingViewModel @Inject constructor(
     private val stockRepository: DefaultListingRepository,
-    private val stockPresentationMapper: DefaultStockPresentationMapper,
+    private val listingPresentationMapper: ListingPresentationMapper,
     dispatcherProvider: DispatcherProvider
 ) : ViewModel() {
 
@@ -65,13 +65,10 @@ class CompanyListingViewModel @Inject constructor(
 
                         is Resource.Success -> {
                             try {
-                                val data =
-                                    resource.data
-                                        ?: throw IllegalStateException("Data cannot be null")
-
+                                val data = resource.successData
                                 val presentation =
                                     data.map {
-                                        with(stockPresentationMapper) {
+                                        with(listingPresentationMapper) {
                                             it.toPresentation()
                                         }
                                     }

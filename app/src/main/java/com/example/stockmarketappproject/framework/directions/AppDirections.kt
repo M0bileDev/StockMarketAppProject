@@ -6,4 +6,4 @@ import kotlinx.serialization.Serializable
 data object CompanyListing
 
 @Serializable
-data class CompanyInfo(val name: String)
+data class CompanyInfo(val symbol: String)

@@ -19,8 +19,8 @@ class InfoRepositoryImpl @Inject constructor(
     private val defaultInfoDataMapper: DefaultInfoDataMapper,
     private val dispatcherProvider: DispatcherProvider
 ) : DefaultInfoRepository {
-    override fun getCompanyInfo(name: String): Flow<Resource<CompanyInfoData?>> =
-        infoDao.getCompanyInfo(name).transform { companyInfoEntity ->
+    override fun getCompanyInfo(query: String): Flow<Resource<CompanyInfoData?>> =
+        infoDao.getCompanyInfo(query).transform { companyInfoEntity ->
             try {
 
                 if (companyInfoEntity == null) throw IllegalStateException("Data is empty")
@@ -39,10 +39,10 @@ class InfoRepositoryImpl @Inject constructor(
             }
         }
 
-    override suspend fun fetchCompanyInfo(name: String): Resource<CompanyInfoData> =
+    override suspend fun fetchCompanyInfo(symbol: String): Resource<CompanyInfoData> =
         withContext(dispatcherProvider.io) {
             try {
-                val response = infoApi.getCompanyInfo(name)
+                val response = infoApi.getCompanyInfo(symbol)
                 if (response == null) throw IllegalStateException("Data is empty")
 
                 val data = with(defaultInfoDataMapper) {
@@ -53,7 +53,7 @@ class InfoRepositoryImpl @Inject constructor(
                 }
 
                 with(infoDao) {
-                    deleteCompanyInfo(name)
+                    deleteCompanyInfo(symbol)
                     insertCompanyInfo(result)
                 }
 

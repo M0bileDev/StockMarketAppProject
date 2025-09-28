@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.stockmarketappproject.data.repository.listing.DefaultListingRepository
 import com.example.stockmarketappproject.presentation.mapper.listing.ListingPresentationMapper
 import com.example.stockmarketappproject.presentation.model.ViewModelEvents
-import com.example.stockmarketappproject.presentation.model.listing.CompanyListingEvent
+import com.example.stockmarketappproject.presentation.model.listing.ListingScreenEvent
 import com.example.stockmarketappproject.presentation.model.listing.CompanyListingState
 import com.example.stockmarketappproject.presentation.model.listing.ViewModelListingEvents
 import com.example.stockmarketappproject.utils.dispatcherprovider.DispatcherProvider
@@ -91,17 +91,17 @@ class CompanyListingViewModel @Inject constructor(
         fetchCompanies()
     }
 
-    fun onEvent(companyListingEvent: CompanyListingEvent) =
-        when (companyListingEvent) {
-            is CompanyListingEvent.OnNavigate -> {
-                navigateToCompanyInfo(companyListingEvent.name)
+    fun onEvent(listingScreenEvent: ListingScreenEvent) =
+        when (listingScreenEvent) {
+            is ListingScreenEvent.OnNavigate -> {
+                navigateToCompanyInfo(listingScreenEvent.name)
             }
 
-            is CompanyListingEvent.OnSearchQueryChange -> {
-                search = companyListingEvent.query
+            is ListingScreenEvent.OnSearchQueryChange -> {
+                search = listingScreenEvent.query
             }
 
-            is CompanyListingEvent.OnRefresh -> {
+            is ListingScreenEvent.OnRefresh -> {
                 fetchCompanies()
             }
         }

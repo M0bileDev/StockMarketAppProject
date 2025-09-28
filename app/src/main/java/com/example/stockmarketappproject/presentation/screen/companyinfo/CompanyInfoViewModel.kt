@@ -9,6 +9,7 @@ import com.example.stockmarketappproject.data.repository.intraday.DefaultIntrada
 import com.example.stockmarketappproject.presentation.mapper.info.InfoPresentationMapper
 import com.example.stockmarketappproject.presentation.mapper.intraday.IntradayPresentationMapper
 import com.example.stockmarketappproject.presentation.model.ViewModelEvents
+import com.example.stockmarketappproject.presentation.model.info.InfoScreenEvents
 import com.example.stockmarketappproject.presentation.model.info.CompanyInfoState
 import com.example.stockmarketappproject.presentation.model.info.ViewModelInfoEvents
 import com.example.stockmarketappproject.utils.dispatcherprovider.DispatcherProvider
@@ -63,6 +64,15 @@ class CompanyInfoViewModel @Inject constructor(
         fetchCompanyInfo()
     }
 
+    fun onEvent(infoScreenEvents: InfoScreenEvents) =
+        when (infoScreenEvents) {
+            is InfoScreenEvents.OnRefresh -> {
+                fetchCompanyInfo()
+            }
+
+            else -> throw IllegalStateException("No other events implemented")
+        }
+
     private fun collectIntradayInfo() =
         actionOnNavigationArgumentOrError(
             symbol,
@@ -84,6 +94,7 @@ class CompanyInfoViewModel @Inject constructor(
                                         data.map { data -> data.toPresentation() }
                                     }
                                     _state.value = _state.value.copy(stockInfoList = presentation)
+                                    _viewModelEvent.emit(ViewModelInfoEvents.DismissSnackbar)
                                 }
                             }
 
@@ -115,6 +126,7 @@ class CompanyInfoViewModel @Inject constructor(
                                         data.toPresentation()
                                     }
                                     _state.value = _state.value.copy(company = presentation)
+                                    _viewModelEvent.emit(ViewModelInfoEvents.DismissSnackbar)
                                 }
                             }
                         }

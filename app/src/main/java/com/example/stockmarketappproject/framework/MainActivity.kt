@@ -101,6 +101,7 @@ private fun companyListingComposable(
         with(companyListingViewModel) {
             val companyListingState by state.collectAsStateWithLifecycle()
 
+            // TODO: extract to separate block
             LaunchedEffect(lifecycle) {
                 lifecycle.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                     event.distinctUntilChanged()
@@ -136,6 +137,10 @@ private fun companyListingComposable(
                                             duration = SnackbarDuration.Indefinite
                                         )
                                     }
+                                }
+
+                                is ViewModelListingEvents.DismissSnackbar -> {
+                                    snackbarHostState.currentSnackbarData?.dismiss()
                                 }
                             }
                         }

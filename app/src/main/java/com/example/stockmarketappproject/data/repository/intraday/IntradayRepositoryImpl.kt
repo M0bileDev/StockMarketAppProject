@@ -41,6 +41,7 @@ class IntradayRepositoryImpl @Inject constructor(
             }
         }
 
+    // TODO: business logic -> do not call for intraday info at Saturday/Sunday (there's no data)
     override suspend fun fetchIntradayInfo(symbol: String): Resource<List<CompanyIntradayInfoData>> =
         withContext(dispatcherProvider.io) {
             try {

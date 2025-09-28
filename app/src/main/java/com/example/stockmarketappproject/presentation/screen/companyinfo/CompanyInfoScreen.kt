@@ -3,6 +3,7 @@
 package com.example.stockmarketappproject.presentation.screen.companyinfo
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,10 +12,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -34,12 +38,16 @@ import com.example.stockmarketappproject.presentation.screen.component.StockChar
 fun CompanyInfoScreen(
     modifier: Modifier = Modifier,
     companyInfoState: CompanyInfoState,
+    snackbarHostState: SnackbarHostState,
     onRefresh: () -> Unit
 ) = with(companyInfoState) {
 
-    val scrollable = rememberScrollState()
-
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        snackbarHost = {
+            SnackbarHost(snackbarHostState)
+        }
+    ) { innerPadding ->
         PullToRefreshBox(
             modifier = modifier
                 .fillMaxSize()
@@ -50,77 +58,98 @@ fun CompanyInfoScreen(
                 onRefresh()
             }
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(16.dp)
-                    .verticalScroll(scrollable),
-            ) {
-                company?.let { companyInfoPresentation ->
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = companyInfoPresentation.name,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = companyInfoPresentation.symbol,
-                        fontStyle = FontStyle.Italic,
-                        fontSize = 14.sp,
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    HorizontalDivider()
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(
-                            R.string.industry_x,
-                            companyInfoPresentation.industry
-                        ),
-                        fontStyle = FontStyle.Italic,
-                        fontSize = 14.sp,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
-                    )
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.country_x, companyInfoPresentation.country),
-                        fontStyle = FontStyle.Italic,
-                        fontSize = 14.sp,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    HorizontalDivider()
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = companyInfoPresentation.description,
-                        fontStyle = FontStyle.Italic,
-                        fontSize = 12.sp,
-                    )
+            if (company == null && !isRefreshing) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(stringResource(R.string.there_s_no_data_to_display_try_again_later_or_refresh))
+                    Button(onClick = {
+                        onRefresh()
+                    }) {
+                        Text(stringResource(R.string.refresh))
+                    }
                 }
-                if (stockInfoList.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.market_summary),
-                        fontSize = 14.sp,
-                    )
-                    StockChart(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 64.dp, bottom = 32.dp)
-                            .height(250.dp)
-                            .align(Alignment.CenterHorizontally), stockInfoList = stockInfoList
-                    )
-                } else {
-                    Unit
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                        .padding(16.dp)
+                        .verticalScroll(rememberScrollState()),
+                ) {
+                    company?.let { companyInfoPresentation ->
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = companyInfoPresentation.name,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = companyInfoPresentation.symbol,
+                            fontStyle = FontStyle.Italic,
+                            fontSize = 14.sp,
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        HorizontalDivider()
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = stringResource(
+                                R.string.industry_x,
+                                companyInfoPresentation.industry
+                            ),
+                            fontStyle = FontStyle.Italic,
+                            fontSize = 14.sp,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                        )
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = stringResource(
+                                R.string.country_x,
+                                companyInfoPresentation.country
+                            ),
+                            fontStyle = FontStyle.Italic,
+                            fontSize = 14.sp,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        HorizontalDivider()
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = companyInfoPresentation.description,
+                            fontStyle = FontStyle.Italic,
+                            fontSize = 12.sp,
+                        )
+                    }
+                    if (stockInfoList.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = stringResource(R.string.market_summary),
+                            fontSize = 14.sp,
+                        )
+                        StockChart(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 64.dp, bottom = 32.dp)
+                                .height(250.dp)
+                                .align(Alignment.CenterHorizontally), stockInfoList = stockInfoList
+                        )
+                    } else {
+                        Unit
+                    }
                 }
             }
         }

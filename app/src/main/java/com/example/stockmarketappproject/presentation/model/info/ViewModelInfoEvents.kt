@@ -5,4 +5,5 @@ import com.example.stockmarketappproject.presentation.model.listing.ViewModelLis
 
 interface ViewModelInfoEvents : ViewModelEvents {
     object NavigationArgumentError : ViewModelListingEvents
+    data object DismissSnackbar : ViewModelListingEvents
 }

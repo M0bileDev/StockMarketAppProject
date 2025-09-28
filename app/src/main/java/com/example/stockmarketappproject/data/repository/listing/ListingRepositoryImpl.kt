@@ -1,5 +1,6 @@
 package com.example.stockmarketappproject.data.repository.listing
 
+import com.example.stockmarketappproject.data.local.ClearTableProvider
 import com.example.stockmarketappproject.data.local.dao.ListingDao
 import com.example.stockmarketappproject.data.mappers.listing.DefaultListingDataMapper
 import com.example.stockmarketappproject.data.model.listing.CompanyListingData
@@ -19,7 +20,8 @@ class ListingRepositoryImpl @Inject constructor(
     private val listingDao: ListingDao,
     private val defaultListingDataMapper: DefaultListingDataMapper,
     private val defaultCsvListingParser: DefaultCsvListingParser,
-    private val dispatcherProvider: DispatcherProvider
+    private val dispatcherProvider: DispatcherProvider,
+    private val clearTableProvider: ClearTableProvider
 ) : DefaultListingRepository {
 
     override fun getCompanyListing(query: String): Flow<Resource<List<CompanyListingData>>> =
@@ -50,11 +52,9 @@ class ListingRepositoryImpl @Inject constructor(
                 }
                 if (result.isEmpty()) throw IllegalStateException("Data is empty")
 
-                // TODO: think about upsert
-                with(listingDao) {
-                    clearCompanyListings()
-                    insertCompanyListing(result)
-                }
+                //business logic -> do not keep old data during fetch
+                clearTableProvider.clearAllTables()
+                listingDao.insertCompanyListing(result)
 
                 Resource.Success(successData = data)
             } catch (ise: IllegalStateException) {

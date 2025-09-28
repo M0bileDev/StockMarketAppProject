@@ -28,7 +28,9 @@ import com.example.stockmarketappproject.R
 import com.example.stockmarketappproject.framework.directions.CompanyInfo
 import com.example.stockmarketappproject.framework.directions.CompanyListing
 import com.example.stockmarketappproject.presentation.model.ViewModelEvents
-import com.example.stockmarketappproject.presentation.model.listing.CompanyListingEvent
+import com.example.stockmarketappproject.presentation.model.info.InfoScreenEvents
+import com.example.stockmarketappproject.presentation.model.info.ViewModelInfoEvents
+import com.example.stockmarketappproject.presentation.model.listing.ListingScreenEvent
 import com.example.stockmarketappproject.presentation.model.listing.ViewModelListingEvents
 import com.example.stockmarketappproject.presentation.screen.companyinfo.CompanyInfoScreen
 import com.example.stockmarketappproject.presentation.screen.companyinfo.CompanyInfoViewModel
@@ -73,14 +75,64 @@ private fun StockMarketApp() {
 
 private fun companyInfoComposable(navGraphBuilder: NavGraphBuilder) = with(navGraphBuilder) {
     composable<CompanyInfo> {
+        val lifecycle = LocalLifecycleOwner.current
+        val context = LocalContext.current
+
         val companyInfoViewModel: CompanyInfoViewModel = hiltViewModel()
+        val snackbarHostState = remember { SnackbarHostState() }
 
         with(companyInfoViewModel) {
             val companyInfoState by state.collectAsStateWithLifecycle()
-            // TODO: I think context scope function will work great here, try next
-            CompanyInfoScreen(companyInfoState = companyInfoState, onRefresh = {
-                // TODO: implement refresh
-            })
+
+            LaunchedEffect(lifecycle) {
+                lifecycle.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    event.distinctUntilChanged()
+                        .collectLatest { event ->
+                            when (event) {
+
+                                is ViewModelEvents.DatabaseError -> {
+                                    snackbarHostState.run {
+                                        currentSnackbarData?.dismiss()
+                                        showSnackbar(
+                                            getString(
+                                                context,
+                                                R.string.there_s_no_cached_data_check_your_internet_connection_or_try_later
+                                            ),
+                                            withDismissAction = true,
+                                            duration = SnackbarDuration.Indefinite
+                                        )
+                                    }
+                                }
+
+                                is ViewModelEvents.NetworkError -> {
+                                    snackbarHostState.run {
+                                        currentSnackbarData?.dismiss()
+                                        showSnackbar(
+                                            getString(
+                                                context,
+                                                R.string.there_s_internet_connection_problem_check_your_internet_connection_or_try_later
+                                            ),
+                                            withDismissAction = true,
+                                            duration = SnackbarDuration.Indefinite
+                                        )
+                                    }
+                                }
+
+                                is ViewModelInfoEvents.DismissSnackbar -> {
+                                    snackbarHostState.currentSnackbarData?.dismiss()
+                                }
+                            }
+                        }
+                }
+            }
+
+            CompanyInfoScreen(
+                companyInfoState = companyInfoState,
+                snackbarHostState = snackbarHostState,
+                onRefresh = {
+                    onEvent(InfoScreenEvents.OnRefresh)
+                }
+            )
 
         }
 
@@ -152,16 +204,16 @@ private fun companyListingComposable(
                 snackbarHostState = snackbarHostState,
                 onSearchQueryChanged = { query ->
                     onEvent(
-                        CompanyListingEvent.OnSearchQueryChange(
+                        ListingScreenEvent.OnSearchQueryChange(
                             query
                         )
                     )
                 },
                 onRefresh = {
-                    onEvent(CompanyListingEvent.OnRefresh)
+                    onEvent(ListingScreenEvent.OnRefresh)
                 },
                 onNavigateToCompanyInfo = { symbol ->
-                    onEvent(CompanyListingEvent.OnNavigate(symbol))
+                    onEvent(ListingScreenEvent.OnNavigate(symbol))
                 }
             )
         }

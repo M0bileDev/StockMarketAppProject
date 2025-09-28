@@ -6,4 +6,8 @@
     <string name="industry_x">Industry: %1$s</string>
     <string name="country_x">Country: %1$s</string>
     <string name="market_summary">Market summary</string>
+    <string name="there_s_no_cached_data_check_your_internet_connection_or_try_later">There\'s no cached data. Check your Internet connection or try later.</string>
+    <string name="there_s_internet_connection_problem_check_your_internet_connection_or_try_later">There\'s Internet connection problem. Check your Internet connection or try later.</string>
+    <string name="there_s_no_data_to_display_try_again_later_or_refresh">There\'s no data to display. Try again later or refresh.</string>
+    <string name="refresh">Refresh</string>
 </resources>

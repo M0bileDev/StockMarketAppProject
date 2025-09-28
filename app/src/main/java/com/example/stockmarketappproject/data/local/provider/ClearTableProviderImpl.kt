@@ -1,4 +1,4 @@
-package com.example.stockmarketappproject.data.local
+package com.example.stockmarketappproject.data.local.provider
 
 import javax.inject.Inject
 

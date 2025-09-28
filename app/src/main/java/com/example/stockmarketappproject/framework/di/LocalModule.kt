@@ -2,8 +2,8 @@ package com.example.stockmarketappproject.framework.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.stockmarketappproject.data.local.ClearTableProvider
-import com.example.stockmarketappproject.data.local.ClearTableProviderImpl
+import com.example.stockmarketappproject.data.local.provider.ClearTableProvider
+import com.example.stockmarketappproject.data.local.provider.ClearTableProviderImpl
 import com.example.stockmarketappproject.data.local.dao.InfoDao
 import com.example.stockmarketappproject.data.local.dao.IntradayDao
 import com.example.stockmarketappproject.data.local.dao.ListingDao

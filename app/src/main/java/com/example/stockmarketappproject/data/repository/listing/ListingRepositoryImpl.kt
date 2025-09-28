@@ -1,6 +1,6 @@
 package com.example.stockmarketappproject.data.repository.listing
 
-import com.example.stockmarketappproject.data.local.ClearTableProvider
+import com.example.stockmarketappproject.data.local.provider.ClearTableProvider
 import com.example.stockmarketappproject.data.local.dao.ListingDao
 import com.example.stockmarketappproject.data.mappers.listing.DefaultListingDataMapper
 import com.example.stockmarketappproject.data.model.listing.CompanyListingData

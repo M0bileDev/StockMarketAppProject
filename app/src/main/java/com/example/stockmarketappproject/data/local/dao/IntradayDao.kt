@@ -3,7 +3,7 @@ package com.example.stockmarketappproject.data.local.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.example.stockmarketappproject.data.local.ClearTableProvider
+import com.example.stockmarketappproject.data.local.provider.ClearTableProvider
 import com.example.stockmarketappproject.data.local.entity.CompanyIntradayInfoEntity
 import kotlinx.coroutines.flow.Flow
 

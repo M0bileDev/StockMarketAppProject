@@ -29,5 +29,5 @@ interface ListingDao : ClearTableProvider  {
     )
     fun searchCompanyListing(query: String): Flow<List<CompanyListingEntity>>
 
-    override suspend fun clearAllTables() = clearCompanyListings()
+    override suspend fun clearTable() = clearCompanyListings()
 }

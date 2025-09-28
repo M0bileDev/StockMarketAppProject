@@ -3,11 +3,11 @@ package com.example.stockmarketappproject.data.local
 import javax.inject.Inject
 
 class ClearTableProviderImpl @Inject constructor(
-    private val tables: Set<@JvmSuppressWildcards ClearTableProvider>
+    private val providers: Set<@JvmSuppressWildcards ClearTableProvider>
 ) : ClearTableProvider {
-    override suspend fun clearAllTables() {
-        tables.forEach { table ->
-            table.clearAllTables()
+    override suspend fun clearTable() {
+        providers.forEach { table ->
+            table.clearTable()
         }
     }
 }

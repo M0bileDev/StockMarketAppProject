@@ -53,7 +53,7 @@ class ListingRepositoryImpl @Inject constructor(
                 if (result.isEmpty()) throw IllegalStateException("Data is empty")
 
                 //business logic -> do not keep old data during fetch
-                clearTableProvider.clearAllTables()
+                clearTableProvider.clearTable()
                 listingDao.insertCompanyListing(result)
 
                 Resource.Success(successData = data)

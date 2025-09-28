@@ -31,5 +31,5 @@ interface InfoDao : ClearTableProvider  {
     @Query("DELETE FROM company_info_entity")
     suspend fun clearCompanyInfo()
 
-    override suspend fun clearAllTables() = clearCompanyInfo()
+    override suspend fun clearTable() = clearCompanyInfo()
 }

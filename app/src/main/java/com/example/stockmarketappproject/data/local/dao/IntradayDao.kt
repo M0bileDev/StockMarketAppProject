@@ -30,5 +30,5 @@ interface IntradayDao : ClearTableProvider  {
     @Query("DELETE FROM company_intraday_info_entity")
     suspend fun clearIntraday()
 
-    override suspend fun clearAllTables() = clearIntraday()
+    override suspend fun clearTable() = clearIntraday()
 }

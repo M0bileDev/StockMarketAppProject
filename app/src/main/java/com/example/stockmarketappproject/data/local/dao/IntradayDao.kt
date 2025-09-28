@@ -3,11 +3,12 @@ package com.example.stockmarketappproject.data.local.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import com.example.stockmarketappproject.data.local.ClearTableProvider
 import com.example.stockmarketappproject.data.local.entity.CompanyIntradayInfoEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface IntradayDao {
+interface IntradayDao : ClearTableProvider  {
 
     @Insert
     suspend fun insertCompanyIntradayInfo(
@@ -25,4 +26,9 @@ interface IntradayDao {
             """
     )
     fun getCompanyIntradayInfoEntities(query: String): Flow<List<CompanyIntradayInfoEntity>>
+
+    @Query("DELETE FROM company_intraday_info_entity")
+    suspend fun clearIntraday()
+
+    override suspend fun clearAllTables() = clearIntraday()
 }

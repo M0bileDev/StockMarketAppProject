@@ -73,6 +73,7 @@ class CompanyListingViewModel @Inject constructor(
                                         }
                                     }
                                 _state.value = _state.value.copy(companies = presentation)
+                                _viewModelEvent.emit(ViewModelListingEvents.DismissSnackbar)
                             } catch (e: Exception) {
                                 e.printStackTrace()
                                 _viewModelEvent.emit(ViewModelEvents.DatabaseError)

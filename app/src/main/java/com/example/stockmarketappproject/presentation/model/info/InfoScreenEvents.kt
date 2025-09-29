@@ -1,6 +1,6 @@
 package com.example.stockmarketappproject.presentation.model.info
 
-interface InfoScreenEvents {
+sealed interface InfoScreenEvents {
 
     object OnRefresh : InfoScreenEvents
 }

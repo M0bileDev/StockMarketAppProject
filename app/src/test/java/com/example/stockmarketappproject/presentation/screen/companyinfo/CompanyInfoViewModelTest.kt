@@ -11,6 +11,7 @@ import com.example.stockmarketappproject.presentation.mapper.info.InfoPresentati
 import com.example.stockmarketappproject.presentation.mapper.intraday.IntradayPresentationMapper
 import com.example.stockmarketappproject.presentation.model.ViewModelEvents
 import com.example.stockmarketappproject.presentation.model.info.CompanyInfoPresentation
+import com.example.stockmarketappproject.presentation.model.info.CompanyInfoState
 import com.example.stockmarketappproject.presentation.model.info.InfoScreenEvents
 import com.example.stockmarketappproject.presentation.model.info.ViewModelInfoEvents
 import com.example.stockmarketappproject.presentation.model.intraday.CompanyIntradayInfoPresentation
@@ -34,13 +35,16 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.not
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.time.LocalDateTime
 
 class CompanyInfoViewModelTest {
 
-    private val savedStateHandle = mockk<SavedStateHandle>()
+    val savedStateHandle = mockk<SavedStateHandle>()
     private val companyInfoRepository = mockk<DefaultInfoRepository>()
     private val intradayRepository = mockk<DefaultIntradayRepository>()
     private val infoPresentationMapper = mockk<InfoPresentationMapper>()
@@ -62,6 +66,7 @@ class CompanyInfoViewModelTest {
             dispatcherProvider
         )
     }
+
 
     @Test
     fun givenViewModel_whenNavArgIsNull_thenEventIsNavigationArgumentError() {
@@ -198,5 +203,55 @@ class CompanyInfoViewModelTest {
 
         //then
         verify { spykViewModel["fetchCompanyInfo"]() }
+    }
+
+    @Test
+    fun givenViewModel_whenInitIsSuccessful_thenViewStateIsNotDefault() = runTest {
+        //given viewmodel
+        val companyInfoViewModel = createViewModelWithRules {
+            every { savedStateHandle.get<String>("symbol") } returns ""
+            every { companyInfoRepository.getCompanyInfo("") } returns flow {
+                emit(
+                    Resource.Success(
+                        CompanyInfoData("", "", "", "", "")
+                    )
+                )
+            }
+            every { intradayRepository.getIntradayInfo("") } returns flow {
+                emit(
+                    Resource.Success(
+                        listOf(
+                            CompanyIntradayInfoData(LocalDateTime.now(), 0.0)
+                        )
+                    )
+                )
+            }
+            coEvery { companyInfoRepository.fetchCompanyInfo("") } returns Resource.Success(
+                CompanyInfoData("", "", "", "", "")
+            )
+            coEvery {
+                intradayRepository.fetchIntradayInfo("")
+            } returns Resource.Success(
+                listOf(
+                    CompanyIntradayInfoData(LocalDateTime.now(), 0.0)
+                )
+            )
+            every { infoPresentationMapper.run { any<CompanyInfoData>().toPresentation() } } returns CompanyInfoPresentation(
+                "",
+                "",
+                "",
+                "",
+                ""
+            )
+            every { intradayPresentationMapper.run { any<CompanyIntradayInfoData>().toPresentation() } } returns CompanyIntradayInfoPresentation(
+                LocalDateTime.now(), 0.0
+            )
+        }
+
+        //when init
+        companyInfoViewModel
+
+        //then
+        assertThat(companyInfoViewModel.state, `is`(not(CompanyInfoState.createDefault())))
     }
 }

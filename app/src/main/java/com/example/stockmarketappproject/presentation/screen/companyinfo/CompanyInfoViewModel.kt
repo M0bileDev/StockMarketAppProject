@@ -28,8 +28,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-const val TAG = "CompanyInfoViewModel"
-
 @HiltViewModel
 class CompanyInfoViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -69,8 +67,6 @@ class CompanyInfoViewModel @Inject constructor(
             is InfoScreenEvents.OnRefresh -> {
                 fetchCompanyInfo()
             }
-
-            else -> throw IllegalStateException("No other events implemented")
         }
 
     private fun collectIntradayInfo() =
@@ -158,13 +154,7 @@ class CompanyInfoViewModel @Inject constructor(
                                     _viewModelEvent.emit(ViewModelEvents.NetworkError)
                                 }
 
-                                is Resource.Success -> {
-                                    Log.d(
-                                        TAG,
-                                        // TODO: could be more explicit
-                                        "Data has been fetched successfully..."
-                                    )
-                                }
+                                is Resource.Success -> {}
                             }
                         },
                         onResult2 = { resource ->
@@ -173,13 +163,7 @@ class CompanyInfoViewModel @Inject constructor(
                                     _viewModelEvent.emit(ViewModelEvents.NetworkError)
                                 }
 
-                                is Resource.Success -> {
-                                    Log.d(
-                                        TAG,
-                                        // TODO: could be more explicit
-                                        "Data has been fetched successfully..."
-                                    )
-                                }
+                                is Resource.Success -> {}
                             }
                         }
                     )

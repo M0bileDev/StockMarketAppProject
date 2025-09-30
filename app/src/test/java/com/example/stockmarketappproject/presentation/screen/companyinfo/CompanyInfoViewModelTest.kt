@@ -26,6 +26,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
@@ -301,6 +302,33 @@ class CompanyInfoViewModelTest {
         val matcher = CompanyInfoState.createDefault()
 
         assertThat(actualState, `is`(not(matcher)))
+    }
+
+    @Test
+    fun givenViewModel_whenViewModelIsDestroyed_collectIntradayInfo_thenJobIsCancelled() = runTest {
+
+        every { savedStateHandle.get<String>("symbol") } returns ""
+        coEvery { intradayRepository.getIntradayInfo("") } coAnswers {
+            flow {
+                delay(Long.MAX_VALUE)
+                emit(
+                    Resource.Success(
+                        listOf(
+                            CompanyIntradayInfoData(LocalDateTime.now(), 0.0)
+                        )
+                    )
+                )
+            }
+        }
+
+        //given view model
+
+        //when
+        companyInfoViewModel.collectIntradayInfo()
+        companyInfoViewModel.onCleared()
+
+        //then
+        assertEquals(true, companyInfoViewModel.collectIntradayJob?.isCancelled)
     }
 
 }

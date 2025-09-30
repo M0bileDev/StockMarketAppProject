@@ -331,4 +331,29 @@ class CompanyInfoViewModelTest {
         assertEquals(true, companyInfoViewModel.collectIntradayJob?.isCancelled)
     }
 
+    @Test
+    fun givenViewModel_whenViewModelIsDestroyed_collectCompanyInfo_thenJobIsCancelled() = runTest {
+
+        every { savedStateHandle.get<String>("symbol") } returns ""
+        coEvery { companyInfoRepository.getCompanyInfo("") } coAnswers {
+            flow {
+                delay(Long.MAX_VALUE)
+                emit(
+                    Resource.Success(
+                        CompanyInfoData("", "", "", "", "")
+                    )
+                )
+            }
+        }
+
+        //given view model
+
+        //when
+        companyInfoViewModel.collectCompanyInfo()
+        companyInfoViewModel.onCleared()
+
+        //then
+        assertEquals(true, companyInfoViewModel.collectInfoJob?.isCancelled)
+    }
+
 }

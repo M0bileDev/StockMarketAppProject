@@ -14,6 +14,7 @@ import com.example.stockmarketappproject.presentation.model.info.CompanyInfoPres
 import com.example.stockmarketappproject.presentation.model.info.CompanyInfoState
 import com.example.stockmarketappproject.presentation.model.info.InfoScreenEvents
 import com.example.stockmarketappproject.presentation.model.info.ViewModelInfoEvents
+import com.example.stockmarketappproject.presentation.model.intraday.CompanyIntradayInfoPresentation
 import com.example.stockmarketappproject.utils.dispatcherprovider.DispatcherProvider
 import com.example.stockmarketappproject.utils.model.Resource
 import io.mockk.coEvery
@@ -266,6 +267,34 @@ class CompanyInfoViewModelTest {
 
         //when collect company info
         companyInfoViewModel.collectCompanyInfo()
+
+        //then
+        val actualState = companyInfoViewModel.state
+        val matcher = CompanyInfoState.createDefault()
+
+        assertThat(actualState, `is`(not(matcher)))
+    }
+
+    @Test
+    fun givenViewModel_whenCollectIntradayInfo_thenViewStateIsNotDefault() = runTest {
+        every { savedStateHandle.get<String>("symbol") } returns ""
+        every { intradayRepository.getIntradayInfo("") } returns flow {
+            emit(
+                Resource.Success(
+                    listOf(
+                        CompanyIntradayInfoData(LocalDateTime.now(), 0.0)
+                    )
+                )
+            )
+        }
+        every { intradayPresentationMapper.run { any<CompanyIntradayInfoData>().toPresentation() } } returns CompanyIntradayInfoPresentation(
+            LocalDateTime.now(), 0.0
+        )
+
+        //given viewmodel
+
+        //when collect company intraday info
+        companyInfoViewModel.collectIntradayInfo()
 
         //then
         val actualState = companyInfoViewModel.state

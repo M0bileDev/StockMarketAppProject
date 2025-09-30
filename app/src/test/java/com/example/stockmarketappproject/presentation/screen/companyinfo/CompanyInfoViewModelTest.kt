@@ -95,4 +95,26 @@ class CompanyInfoViewModelTest {
         mainThreadSurrogate.close()
     }
 
+    @Test
+    fun givenViewModel_whenNavArgIsNull_fetchCompanyInfo_thenNavigationArgumentErrorIsEmitted() {
+        val mainThreadSurrogate = newSingleThreadContext("UI thread")
+        Dispatchers.setMain(mainThreadSurrogate)
+
+        //no deadlock between runBlocking and Dispatchers.Main
+        runBlocking(mainThreadSurrogate) {
+            //given viewModel
+
+            //when nav arg is null and collect intraday info
+            every { savedStateHandle.get<String>("symbol") } returns null
+            companyInfoViewModel.fetchCompanyInfo()
+
+            //then action is NoLocationData
+            val action = companyInfoViewModel.event.first()
+            assertEquals(ViewModelInfoEvents.NavigationArgumentError, action)
+        }
+
+        Dispatchers.resetMain() // reset the main dispatcher to the original Main dispatcher
+        mainThreadSurrogate.close()
+    }
+
 }

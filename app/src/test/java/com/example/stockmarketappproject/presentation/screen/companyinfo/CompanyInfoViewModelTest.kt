@@ -10,6 +10,8 @@ import com.example.stockmarketappproject.data.repository.intraday.DefaultIntrada
 import com.example.stockmarketappproject.presentation.mapper.info.InfoPresentationMapper
 import com.example.stockmarketappproject.presentation.mapper.intraday.IntradayPresentationMapper
 import com.example.stockmarketappproject.presentation.model.ViewModelEvents
+import com.example.stockmarketappproject.presentation.model.info.CompanyInfoPresentation
+import com.example.stockmarketappproject.presentation.model.info.CompanyInfoState
 import com.example.stockmarketappproject.presentation.model.info.InfoScreenEvents
 import com.example.stockmarketappproject.presentation.model.info.ViewModelInfoEvents
 import com.example.stockmarketappproject.utils.dispatcherprovider.DispatcherProvider
@@ -32,6 +34,9 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.not
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -237,6 +242,36 @@ class CompanyInfoViewModelTest {
 
         //then
         verify { spykViewModel["fetchCompanyInfo"]() }
+    }
+
+    @Test
+    fun givenViewModel_whenCollectCompanyInfo_thenViewStateIsNotDefault() = runTest {
+        every { savedStateHandle.get<String>("symbol") } returns ""
+        every { companyInfoRepository.getCompanyInfo("") } returns flow {
+            emit(
+                Resource.Success(
+                    CompanyInfoData("", "", "", "", "")
+                )
+            )
+        }
+        every { infoPresentationMapper.run { any<CompanyInfoData>().toPresentation() } } returns CompanyInfoPresentation(
+            "",
+            "",
+            "",
+            "",
+            ""
+        )
+
+        //given viewmodel
+
+        //when collect company info
+        companyInfoViewModel.collectCompanyInfo()
+
+        //then
+        val actualState = companyInfoViewModel.state
+        val matcher = CompanyInfoState.createDefault()
+
+        assertThat(actualState, `is`(not(matcher)))
     }
 
 }

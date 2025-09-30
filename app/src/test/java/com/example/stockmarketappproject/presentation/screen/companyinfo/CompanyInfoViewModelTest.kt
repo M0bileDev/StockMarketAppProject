@@ -26,6 +26,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
@@ -55,7 +56,7 @@ class CompanyInfoViewModelTest {
         override val default: CoroutineDispatcher = UnconfinedTestDispatcher()
     }
 
-    fun createViewModelWithRules(mockRules: () -> Unit): CompanyInfoViewModel {
+    private fun createViewModelWithRules(mockRules: () -> Unit): CompanyInfoViewModel {
         mockRules()
         return CompanyInfoViewModel(
             savedStateHandle,
@@ -64,6 +65,82 @@ class CompanyInfoViewModelTest {
             infoPresentationMapper,
             intradayPresentationMapper,
             dispatcherProvider
+        )
+    }
+
+    private fun createPositivePath(): CompanyInfoViewModel = createViewModelWithRules {
+        every { savedStateHandle.get<String>("symbol") } returns ""
+        every { companyInfoRepository.getCompanyInfo("") } returns flow {
+            emit(
+                Resource.Success(
+                    CompanyInfoData("", "", "", "", "")
+                )
+            )
+        }
+        every { intradayRepository.getIntradayInfo("") } returns flow {
+            emit(
+                Resource.Success(
+                    listOf(
+                        CompanyIntradayInfoData(LocalDateTime.now(), 0.0)
+                    )
+                )
+            )
+        }
+        coEvery { companyInfoRepository.fetchCompanyInfo("") } returns Resource.Success(
+            CompanyInfoData("", "", "", "", "")
+        )
+        coEvery {
+            intradayRepository.fetchIntradayInfo("")
+        } returns Resource.Success(
+            listOf(
+                CompanyIntradayInfoData(LocalDateTime.now(), 0.0)
+            )
+        )
+        every { infoPresentationMapper.run { any<CompanyInfoData>().toPresentation() } } returns CompanyInfoPresentation(
+            "",
+            "",
+            "",
+            "",
+            ""
+        )
+        every { intradayPresentationMapper.run { any<CompanyIntradayInfoData>().toPresentation() } } returns CompanyIntradayInfoPresentation(
+            LocalDateTime.now(), 0.0
+        )
+    }
+
+    private fun createNegativePath(): CompanyInfoViewModel = createViewModelWithRules {
+        every { savedStateHandle.get<String>("symbol") } returns ""
+        every { companyInfoRepository.getCompanyInfo("") } returns flow {
+            emit(
+                Resource.Error(
+                    message = ""
+                )
+            )
+        }
+        every { intradayRepository.getIntradayInfo("") } returns flow {
+            emit(
+                Resource.Error(
+                    message = ""
+                )
+            )
+        }
+        coEvery { companyInfoRepository.fetchCompanyInfo("") } returns Resource.Error(
+            message = ""
+        )
+        coEvery {
+            intradayRepository.fetchIntradayInfo("")
+        } returns Resource.Error(
+            message = ""
+        )
+        every { infoPresentationMapper.run { any<CompanyInfoData>().toPresentation() } } returns CompanyInfoPresentation(
+            "",
+            "",
+            "",
+            "",
+            ""
+        )
+        every { intradayPresentationMapper.run { any<CompanyIntradayInfoData>().toPresentation() } } returns CompanyIntradayInfoPresentation(
+            LocalDateTime.now(), 0.0
         )
     }
 
@@ -102,45 +179,7 @@ class CompanyInfoViewModelTest {
             //given viewModel
 
             //when current location is null
-            val companyInfoViewModel = createViewModelWithRules {
-                every { savedStateHandle.get<String>("symbol") } returns ""
-                every { companyInfoRepository.getCompanyInfo("") } returns flow {
-                    emit(
-                        Resource.Success(
-                            CompanyInfoData("", "", "", "", "")
-                        )
-                    )
-                }
-                every { intradayRepository.getIntradayInfo("") } returns flow {
-                    emit(
-                        Resource.Success(
-                            listOf(
-                                CompanyIntradayInfoData(LocalDateTime.now(), 0.0)
-                            )
-                        )
-                    )
-                }
-                coEvery { companyInfoRepository.fetchCompanyInfo("") } returns Resource.Success(
-                    CompanyInfoData("", "", "", "", "")
-                )
-                coEvery {
-                    intradayRepository.fetchIntradayInfo("")
-                } returns Resource.Success(
-                    listOf(
-                        CompanyIntradayInfoData(LocalDateTime.now(), 0.0)
-                    )
-                )
-                every { infoPresentationMapper.run { any<CompanyInfoData>().toPresentation() } } returns CompanyInfoPresentation(
-                    "",
-                    "",
-                    "",
-                    "",
-                    ""
-                )
-                every { intradayPresentationMapper.run { any<CompanyIntradayInfoData>().toPresentation() } } returns CompanyIntradayInfoPresentation(
-                    LocalDateTime.now(), 0.0
-                )
-            }
+            val companyInfoViewModel = createPositivePath()
 
             //then action is NoLocationData
             val job = launch {
@@ -157,45 +196,7 @@ class CompanyInfoViewModelTest {
     @Test
     fun givenViewModel_whenEventIsOnRefresh_thenFetchCompanyInfoIsExecuted() = runTest {
         //given viewmodel
-        val companyInfoViewModel = createViewModelWithRules {
-            every { savedStateHandle.get<String>("symbol") } returns ""
-            every { companyInfoRepository.getCompanyInfo("") } returns flow {
-                emit(
-                    Resource.Success(
-                        CompanyInfoData("", "", "", "", "")
-                    )
-                )
-            }
-            every { intradayRepository.getIntradayInfo("") } returns flow {
-                emit(
-                    Resource.Success(
-                        listOf(
-                            CompanyIntradayInfoData(LocalDateTime.now(), 0.0)
-                        )
-                    )
-                )
-            }
-            coEvery { companyInfoRepository.fetchCompanyInfo("") } returns Resource.Success(
-                CompanyInfoData("", "", "", "", "")
-            )
-            coEvery {
-                intradayRepository.fetchIntradayInfo("")
-            } returns Resource.Success(
-                listOf(
-                    CompanyIntradayInfoData(LocalDateTime.now(), 0.0)
-                )
-            )
-            every { infoPresentationMapper.run { any<CompanyInfoData>().toPresentation() } } returns CompanyInfoPresentation(
-                "",
-                "",
-                "",
-                "",
-                ""
-            )
-            every { intradayPresentationMapper.run { any<CompanyIntradayInfoData>().toPresentation() } } returns CompanyIntradayInfoPresentation(
-                LocalDateTime.now(), 0.0
-            )
-        }
+        val companyInfoViewModel = createPositivePath()
         val spykViewModel = spyk(companyInfoViewModel, recordPrivateCalls = true)
 
         //when
@@ -208,45 +209,7 @@ class CompanyInfoViewModelTest {
     @Test
     fun givenViewModel_whenInitIsSuccessful_thenViewStateIsNotDefault() = runTest {
         //given viewmodel
-        val companyInfoViewModel = createViewModelWithRules {
-            every { savedStateHandle.get<String>("symbol") } returns ""
-            every { companyInfoRepository.getCompanyInfo("") } returns flow {
-                emit(
-                    Resource.Success(
-                        CompanyInfoData("", "", "", "", "")
-                    )
-                )
-            }
-            every { intradayRepository.getIntradayInfo("") } returns flow {
-                emit(
-                    Resource.Success(
-                        listOf(
-                            CompanyIntradayInfoData(LocalDateTime.now(), 0.0)
-                        )
-                    )
-                )
-            }
-            coEvery { companyInfoRepository.fetchCompanyInfo("") } returns Resource.Success(
-                CompanyInfoData("", "", "", "", "")
-            )
-            coEvery {
-                intradayRepository.fetchIntradayInfo("")
-            } returns Resource.Success(
-                listOf(
-                    CompanyIntradayInfoData(LocalDateTime.now(), 0.0)
-                )
-            )
-            every { infoPresentationMapper.run { any<CompanyInfoData>().toPresentation() } } returns CompanyInfoPresentation(
-                "",
-                "",
-                "",
-                "",
-                ""
-            )
-            every { intradayPresentationMapper.run { any<CompanyIntradayInfoData>().toPresentation() } } returns CompanyIntradayInfoPresentation(
-                LocalDateTime.now(), 0.0
-            )
-        }
+        val companyInfoViewModel = createPositivePath()
 
         //when init
         companyInfoViewModel

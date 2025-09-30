@@ -82,6 +82,13 @@ private fun companyInfoComposable(navGraphBuilder: NavGraphBuilder) = with(navGr
         val snackbarHostState = remember { SnackbarHostState() }
 
         with(companyInfoViewModel) {
+
+            LaunchedEffect(Unit) {
+                collectCompanyInfo()
+                collectIntradayInfo()
+                fetchCompanyInfo()
+            }
+
             val companyInfoState by state.collectAsStateWithLifecycle()
 
             LaunchedEffect(lifecycle) {

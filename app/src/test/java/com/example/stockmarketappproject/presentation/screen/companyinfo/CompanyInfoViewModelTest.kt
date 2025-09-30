@@ -7,8 +7,10 @@ import com.example.stockmarketappproject.data.repository.info.DefaultInfoReposit
 import com.example.stockmarketappproject.data.repository.intraday.DefaultIntradayRepository
 import com.example.stockmarketappproject.presentation.mapper.info.InfoPresentationMapper
 import com.example.stockmarketappproject.presentation.mapper.intraday.IntradayPresentationMapper
+import com.example.stockmarketappproject.presentation.model.ViewModelEvents
 import com.example.stockmarketappproject.presentation.model.info.ViewModelInfoEvents
 import com.example.stockmarketappproject.utils.dispatcherprovider.DispatcherProvider
+import com.example.stockmarketappproject.utils.model.Resource
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CoroutineDispatcher
@@ -16,10 +18,13 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -116,5 +121,34 @@ class CompanyInfoViewModelTest {
         Dispatchers.resetMain() // reset the main dispatcher to the original Main dispatcher
         mainThreadSurrogate.close()
     }
+
+    @Test
+    fun givenViewModel_whenCollectIntradayInfo_ResourceError_thenDatabaseErrorIsEmitted() =
+        runTest {
+            every { savedStateHandle.get<String>("symbol") } returns ""
+            every { intradayRepository.getIntradayInfo("") } returns flow {
+                emit(
+                    Resource.Error(
+                        message = ""
+                    )
+                )
+            }
+
+            lateinit var action: ViewModelEvents
+            val job = launch(UnconfinedTestDispatcher()) {
+                companyInfoViewModel.event.collect {
+                    action = it
+                }
+            }
+
+            //given view model
+
+            //when collect intraday info
+            companyInfoViewModel.collectIntradayInfo()
+
+            // then
+            job.cancel()
+            assertEquals(ViewModelEvents.DatabaseError, action)
+        }
 
 }

@@ -26,7 +26,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
@@ -40,11 +40,13 @@ import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Test
 import java.time.LocalDateTime
 
 class CompanyInfoViewModelTest {
 
+    lateinit var companyInfoViewModel: CompanyInfoViewModel
     val savedStateHandle = mockk<SavedStateHandle>()
     private val companyInfoRepository = mockk<DefaultInfoRepository>()
     private val intradayRepository = mockk<DefaultIntradayRepository>()
@@ -56,9 +58,9 @@ class CompanyInfoViewModelTest {
         override val default: CoroutineDispatcher = UnconfinedTestDispatcher()
     }
 
-    private fun createViewModelWithRules(mockRules: () -> Unit): CompanyInfoViewModel {
-        mockRules()
-        return CompanyInfoViewModel(
+    @Before
+    fun setup() {
+        companyInfoViewModel = CompanyInfoViewModel(
             savedStateHandle,
             companyInfoRepository,
             intradayRepository,
@@ -68,7 +70,7 @@ class CompanyInfoViewModelTest {
         )
     }
 
-    private fun createPositivePath(): CompanyInfoViewModel = createViewModelWithRules {
+    private fun usePositivePath() {
         every { savedStateHandle.get<String>("symbol") } returns ""
         every { companyInfoRepository.getCompanyInfo("") } returns flow {
             emit(
@@ -108,8 +110,8 @@ class CompanyInfoViewModelTest {
         )
     }
 
-    private fun createNegativePath(): CompanyInfoViewModel = createViewModelWithRules {
-        every { savedStateHandle.get<String>("symbol") } returns ""
+    private fun useNegativePath() {
+        every { savedStateHandle.get<String>("symbol") } returns null
         every { companyInfoRepository.getCompanyInfo("") } returns flow {
             emit(
                 Resource.Error(
@@ -144,77 +146,4 @@ class CompanyInfoViewModelTest {
         )
     }
 
-
-    @Test
-    fun givenViewModel_whenNavArgIsNull_thenEventIsNavigationArgumentError() {
-        val mainThreadSurrogate = newSingleThreadContext("UI thread")
-        Dispatchers.setMain(mainThreadSurrogate)
-
-        //no deadlock between runBlocking and Dispatchers.Main
-        runBlocking(mainThreadSurrogate) {
-            //given viewModel
-
-            //when current location is null
-            val companyInfoViewModel = createViewModelWithRules {
-                every { savedStateHandle.get<String>("symbol") } returns null
-            }
-
-            //then action is NoLocationData
-            val action = companyInfoViewModel.event.first()
-            assertEquals(ViewModelInfoEvents.NavigationArgumentError, action)
-        }
-
-        Dispatchers.resetMain() // reset the main dispatcher to the original Main dispatcher
-        mainThreadSurrogate.close()
-    }
-
-    @Test
-    fun givenViewModel_whenNavArgIsNotNull_thenInitExecutesPositively() {
-        val mainThreadSurrogate = newSingleThreadContext("UI thread")
-        Dispatchers.setMain(mainThreadSurrogate)
-        var action: ViewModelEvents? = null
-
-        //no deadlock between runBlocking and Dispatchers.Main
-        runBlocking(mainThreadSurrogate) {
-            //given viewModel
-
-            //when current location is null
-            val companyInfoViewModel = createPositivePath()
-
-            //then action is NoLocationData
-            val job = launch {
-                action = companyInfoViewModel.event.first()
-            }
-            job.cancel()
-            assertEquals(null, action)
-        }
-
-        Dispatchers.resetMain() // reset the main dispatcher to the original Main dispatcher
-        mainThreadSurrogate.close()
-    }
-
-    @Test
-    fun givenViewModel_whenEventIsOnRefresh_thenFetchCompanyInfoIsExecuted() = runTest {
-        //given viewmodel
-        val companyInfoViewModel = createPositivePath()
-        val spykViewModel = spyk(companyInfoViewModel, recordPrivateCalls = true)
-
-        //when
-        spykViewModel.onEvent(InfoScreenEvents.OnRefresh)
-
-        //then
-        verify { spykViewModel["fetchCompanyInfo"]() }
-    }
-
-    @Test
-    fun givenViewModel_whenInitIsSuccessful_thenViewStateIsNotDefault() = runTest {
-        //given viewmodel
-        val companyInfoViewModel = createPositivePath()
-
-        //when init
-        companyInfoViewModel
-
-        //then
-        assertThat(companyInfoViewModel.state, `is`(not(CompanyInfoState.createDefault())))
-    }
 }

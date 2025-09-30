@@ -151,4 +151,32 @@ class CompanyInfoViewModelTest {
             assertEquals(ViewModelEvents.DatabaseError, action)
         }
 
+    @Test
+    fun givenViewModel_whenCollectCompanyInfo_ResourceError_thenDatabaseErrorIsEmitted() = runTest {
+        every { savedStateHandle.get<String>("symbol") } returns ""
+        every { companyInfoRepository.getCompanyInfo("") } returns flow {
+            emit(
+                Resource.Error(
+                    message = ""
+                )
+            )
+        }
+
+        lateinit var action: ViewModelEvents
+        val job = launch(UnconfinedTestDispatcher()) {
+            companyInfoViewModel.event.collect {
+                action = it
+            }
+        }
+
+        //given view model
+
+        //when collect company info
+        companyInfoViewModel.collectCompanyInfo()
+
+        // then
+        job.cancel()
+        assertEquals(ViewModelEvents.DatabaseError, action)
+    }
+
 }

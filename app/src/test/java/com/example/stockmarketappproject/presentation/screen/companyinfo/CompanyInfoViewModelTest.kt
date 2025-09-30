@@ -11,6 +11,7 @@ import com.example.stockmarketappproject.presentation.model.ViewModelEvents
 import com.example.stockmarketappproject.presentation.model.info.ViewModelInfoEvents
 import com.example.stockmarketappproject.utils.dispatcherprovider.DispatcherProvider
 import com.example.stockmarketappproject.utils.model.Resource
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CoroutineDispatcher
@@ -177,6 +178,35 @@ class CompanyInfoViewModelTest {
         // then
         job.cancel()
         assertEquals(ViewModelEvents.DatabaseError, action)
+    }
+
+    @Test
+    fun givenViewModel_whenFetchCompanyInfo_ResourceError_thenDatabaseErrorIsEmitted() = runTest {
+        every { savedStateHandle.get<String>("symbol") } returns ""
+        coEvery { companyInfoRepository.fetchCompanyInfo("") } returns Resource.Error(
+            message = ""
+        )
+        coEvery {
+            intradayRepository.fetchIntradayInfo("")
+        } returns Resource.Error(
+            message = ""
+        )
+
+        lateinit var action: ViewModelEvents
+        val job = launch(UnconfinedTestDispatcher()) {
+            companyInfoViewModel.event.collect {
+                action = it
+            }
+        }
+
+        //given view model
+
+        //when fetch company info
+        companyInfoViewModel.fetchCompanyInfo()
+
+        // then
+        job.cancel()
+        assertEquals(ViewModelEvents.NetworkError, action)
     }
 
 }

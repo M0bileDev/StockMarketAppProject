@@ -1,6 +1,6 @@
 package com.example.stockmarketappproject.presentation.screen.companyinfo
 
-import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,8 +9,8 @@ import com.example.stockmarketappproject.data.repository.intraday.DefaultIntrada
 import com.example.stockmarketappproject.presentation.mapper.info.InfoPresentationMapper
 import com.example.stockmarketappproject.presentation.mapper.intraday.IntradayPresentationMapper
 import com.example.stockmarketappproject.presentation.model.ViewModelEvents
-import com.example.stockmarketappproject.presentation.model.info.InfoScreenEvents
 import com.example.stockmarketappproject.presentation.model.info.CompanyInfoState
+import com.example.stockmarketappproject.presentation.model.info.InfoScreenEvents
 import com.example.stockmarketappproject.presentation.model.info.ViewModelInfoEvents
 import com.example.stockmarketappproject.utils.dispatcherprovider.DispatcherProvider
 import com.example.stockmarketappproject.utils.model.Resource
@@ -30,7 +30,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CompanyInfoViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
     private val companyInfoRepository: DefaultInfoRepository,
     private val intradayRepository: DefaultIntradayRepository,
     private val infoPresentationMapper: InfoPresentationMapper,
@@ -44,23 +44,20 @@ class CompanyInfoViewModel @Inject constructor(
     private val _viewModelEvent = MutableSharedFlow<ViewModelEvents>()
     val event get() = _viewModelEvent.asSharedFlow()
 
-    private val symbol = savedStateHandle.get<String>("symbol")
+    private val symbol
+        get() = savedStateHandle.get<String>("symbol")
 
-    private var fetchJob: Job? = null
+    var fetchJob: Job? = null
+        private set
     private val fetchScope = CoroutineScope(dispatcherProvider.io)
 
-    private var collectInfoJob: Job? = null
+    var collectInfoJob: Job? = null
+        private set
     private val collectInfoScope = CoroutineScope(dispatcherProvider.io)
 
-    private var collectIntradayJob: Job? = null
+    var collectIntradayJob: Job? = null
+        private set
     private val collectIntradayScope = CoroutineScope(dispatcherProvider.io)
-
-    init {
-        // TODO: possible combine could work better
-        collectCompanyInfo()
-        collectIntradayInfo()
-        fetchCompanyInfo()
-    }
 
     fun onEvent(infoScreenEvents: InfoScreenEvents) =
         when (infoScreenEvents) {
@@ -69,7 +66,7 @@ class CompanyInfoViewModel @Inject constructor(
             }
         }
 
-    private fun collectIntradayInfo() =
+    fun collectIntradayInfo() =
         actionOnNavigationArgumentOrError(
             symbol,
             onAction = { arg ->
@@ -101,7 +98,7 @@ class CompanyInfoViewModel @Inject constructor(
                 emitNavigationArgumentError()
             })
 
-    private fun collectCompanyInfo() =
+    fun collectCompanyInfo() =
         actionOnNavigationArgumentOrError(
             symbol,
             onAction = { arg ->
@@ -132,7 +129,7 @@ class CompanyInfoViewModel @Inject constructor(
                 emitNavigationArgumentError()
             })
 
-    private fun fetchCompanyInfo() = actionOnNavigationArgumentOrError(
+    fun fetchCompanyInfo() = actionOnNavigationArgumentOrError(
         navArg = symbol,
         onAction = { arg ->
             with(fetchScope) {
@@ -207,9 +204,11 @@ class CompanyInfoViewModel @Inject constructor(
         } ?: onError()
     }
 
-    override fun onCleared() {
+    @VisibleForTesting
+    public override fun onCleared() {
         super.onCleared()
         fetchJob?.cancel()
         collectInfoJob?.cancel()
+        collectIntradayJob?.cancel()
     }
 }
